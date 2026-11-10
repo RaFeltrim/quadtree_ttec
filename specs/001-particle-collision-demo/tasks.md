@@ -123,8 +123,8 @@ description: "Task list for Demo de Colisão de Partículas com Quadtree"
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-- [ ] T026 Revisar `src/*.js` quanto a simplicidade e didática: remover código morto, conferir comentários explicando subdivisão, consulta, busca de candidatas e ricochete
-- [ ] T027 [P] Criar `README.md` curto: o que é a demo, como abrir (`index.html`) e como testar (`node --test`)
+- [X] T026 Revisar `src/*.js` quanto a simplicidade e didática: remover código morto, conferir comentários explicando subdivisão, consulta, busca de candidatas e ricochete
+- [X] T027 [P] Criar `README.md` curto: o que é a demo, como abrir (`index.html`) e como testar (`node --test`)
 - [ ] T028 Executar todos os cenários de [quickstart.md](./quickstart.md), incluindo o 1 (anima em < 2 s, SC-001) e o 9 (2000 partículas de raio 32); commit "Revisão final e README"
 
 ---
