@@ -13,7 +13,7 @@ servidor, sem build.
 ## Rodar os testes
 
 ```bash
-node --test tests/
+node --test
 ```
 
 Esperado: todos os testes de `particle`, `quadtree` e `simulation` passam.

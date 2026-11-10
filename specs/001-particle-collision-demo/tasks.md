@@ -26,7 +26,7 @@ description: "Task list for Demo de Colisão de Partículas com Quadtree"
 - Arquivos de lógica terminam com `if (typeof module !== 'undefined') module.exports = { ... }`
   (research R2). Nunca usar `var/let/const { X } = require(...)` em `src/`.
 - Testes em CommonJS: `const test = require('node:test'); const assert = require('node:assert/strict');`
-  e `require('../src/<arquivo>.js')`. Rodar com `node --test tests/`.
+  e `require('../src/<arquivo>.js')`. Rodar com `node --test`.
 - Código simples e didático: funções curtas, comentários explicando o porquê, sem
   abstrações extras (constituição, Princípios I e II).
 - Commits feitos pelo Claude, mensagens curtas, **sem** linha `Co-Authored-By` nem
@@ -51,11 +51,11 @@ description: "Task list for Demo de Colisão de Partículas com Quadtree"
 
 **⚠️ CRITICAL**: Nenhuma story começa antes desta fase
 
-- [ ] T005 [P] Escrever testes em `tests/particle.test.js`: `move` soma velocidade; ao passar da borda esquerda/direita/superior/inferior a partícula fica encostada (`x = r`, `x = width − r`, etc.) e a componente da velocidade aponta para dentro; `particlesOverlap` é `true` com distância < `a.r + b.r` e `false` quando exatamente encostadas; `resolveCollision` de duas partículas frontais se aproximando troca as velocidades normais e as deixa a distância `a.r + b.r`; se estão se afastando, velocidades não mudam; centros coincidentes usam normal (1, 0) sem gerar `NaN`
-- [ ] T006 [P] Escrever testes em `tests/quadtree.test.js`: `Rect.contains` com borda esquerda/superior inclusiva e direita/inferior exclusiva; `Rect.intersects` para retângulos sobrepostos, encostados e separados; `insert` retorna `false` fora do `boundary`; após inserir `capacity + 1` pontos espalhados, `children` tem 4 nós e `items` da raiz está vazio; inserir 50 pontos idênticos não estoura a pilha e nenhum nó tem `depth > maxDepth`; `query` retorna exatamente os pontos dentro do range (comparar com filtro linear sobre 500 pontos aleatórios)
-- [ ] T007 [P] Implementar `src/particle.js`: `class Particle` com `constructor(id, x, y, vx, vy, r)` e campos `id, x, y, vx, vy, r, colliding = false, selected = false`; método `move(width, height)` conforme contrato ("ao ultrapassar uma borda, reposiciona encostada nela e inverte a componente para dentro"); função `particlesOverlap(a, b)` ("`true` se `distância(a, b) < a.r + b.r`", comparar distâncias ao quadrado); função `resolveCollision(a, b)`: normal `n = (b − a)/dist` (centros iguais → `(1, 0)`), separar cada uma por metade da sobreposição ao longo de `n`, e se `(a.v − b.v)·n > 0` subtrair essa componente de `a.v` e somar em `b.v`; exportar `{ Particle, particlesOverlap, resolveCollision }`
-- [ ] T008 [P] Implementar `src/quadtree.js`: `class Rect` (`x, y, w, h`, `contains(px, py)`, `intersects(other)`) e `class Quadtree` com `constructor(boundary, capacity = 4, depth = 0, maxDepth = 8)`, campos `items = []` e `children = null`; `insert(item)` (fora do boundary → `false`; folha com espaço ou `depth == maxDepth` → guarda em `items`; folha cheia → `subdivide()` move os itens para os 4 filhos e insere o novo no filho certo); `subdivide()` cria NE, NW, SE, SW com `depth + 1`; `query(range, found = [])` não desce em nós que não intersectam `range` e adiciona itens com `range.contains(item.x, item.y)`; exportar `{ Rect, Quadtree }`
-- [ ] T009 Rodar `node --test tests/` e garantir que T005–T006 passam; commit "Partícula e Quadtree com testes"
+- [X] T005 [P] Escrever testes em `tests/particle.test.js`: `move` soma velocidade; ao passar da borda esquerda/direita/superior/inferior a partícula fica encostada (`x = r`, `x = width − r`, etc.) e a componente da velocidade aponta para dentro; `particlesOverlap` é `true` com distância < `a.r + b.r` e `false` quando exatamente encostadas; `resolveCollision` de duas partículas frontais se aproximando troca as velocidades normais e as deixa a distância `a.r + b.r`; se estão se afastando, velocidades não mudam; centros coincidentes usam normal (1, 0) sem gerar `NaN`
+- [X] T006 [P] Escrever testes em `tests/quadtree.test.js`: `Rect.contains` com borda esquerda/superior inclusiva e direita/inferior exclusiva; `Rect.intersects` para retângulos sobrepostos, encostados e separados; `insert` retorna `false` fora do `boundary`; após inserir `capacity + 1` pontos espalhados, `children` tem 4 nós e `items` da raiz está vazio; inserir 50 pontos idênticos não estoura a pilha e nenhum nó tem `depth > maxDepth`; `query` retorna exatamente os pontos dentro do range (comparar com filtro linear sobre 500 pontos aleatórios)
+- [X] T007 [P] Implementar `src/particle.js`: `class Particle` com `constructor(id, x, y, vx, vy, r)` e campos `id, x, y, vx, vy, r, colliding = false, selected = false`; método `move(width, height)` conforme contrato ("ao ultrapassar uma borda, reposiciona encostada nela e inverte a componente para dentro"); função `particlesOverlap(a, b)` ("`true` se `distância(a, b) < a.r + b.r`", comparar distâncias ao quadrado); função `resolveCollision(a, b)`: normal `n = (b − a)/dist` (centros iguais → `(1, 0)`), separar cada uma por metade da sobreposição ao longo de `n`, e se `(a.v − b.v)·n > 0` subtrair essa componente de `a.v` e somar em `b.v`; exportar `{ Particle, particlesOverlap, resolveCollision }`
+- [X] T008 [P] Implementar `src/quadtree.js`: `class Rect` (`x, y, w, h`, `contains(px, py)`, `intersects(other)`) e `class Quadtree` com `constructor(boundary, capacity = 4, depth = 0, maxDepth = 8)`, campos `items = []` e `children = null`; `insert(item)` (fora do boundary → `false`; folha com espaço ou `depth == maxDepth` → guarda em `items`; folha cheia → `subdivide()` move os itens para os 4 filhos e insere o novo no filho certo); `subdivide()` cria NE, NW, SE, SW com `depth + 1`; `query(range, found = [])` não desce em nós que não intersectam `range` e adiciona itens com `range.contains(item.x, item.y)`; exportar `{ Rect, Quadtree }`
+- [X] T009 Rodar `node --test` e garantir que T005–T006 passam; commit "Partícula e Quadtree com testes"
 
 **Checkpoint**: Lógica base pronta e testada
 
@@ -71,7 +71,7 @@ description: "Task list for Demo de Colisão de Partículas com Quadtree"
 - [ ] T011 [US1] Implementar em `src/simulation.js`: no topo, `if (typeof require !== 'undefined') Object.assign(globalThis, require('./particle.js'), require('./quadtree.js'));` (com comentário explicando research R2); função `findPairsBruteForce(particles)` → `{ pairs, tests }` testando cada `i < j`; `class Simulation` com `constructor(width, height)` (campos `width, height, radius = 4, particles = [], mode = 'brute', tree = null, tests = 0, selection = null, selectedCount = 0`); `reset(count, radius, width, height)` cria partículas em posição aleatória dentro da área e velocidade aleatória (módulo entre 0.5 e 2 px/frame), zera `tests` e faz `selection = null`; `step()`: mover todas, construir `this.tree` (`new Quadtree(new Rect(0, 0, width, height))` + inserir todas), zerar `colliding`, detectar pares (por enquanto sempre força bruta), guardar `tests`, chamar `resolveCollision` em cada par e marcar `colliding = true` nos dois; exportar `{ Simulation, findPairsBruteForce }`
 - [ ] T012 [P] [US1] Implementar `src/renderer.js`: função global `draw(ctx, sim, showGrid, dragRect)` que limpa o canvas (fundo escuro) e desenha cada partícula como círculo preenchido — vermelho se `colliding`, cor clara padrão caso contrário (parâmetros `showGrid` e `dragRect` serão usados em US3/US4)
 - [ ] T013 [US1] Implementar `src/main.js`: obter canvas/contexto e elementos do painel; função `resizeCanvas()` ajusta `canvas.width/height` a `innerWidth/innerHeight`; função `restart()` chama `sim.reset(Number(count.value), Number(radius.value), canvas.width, canvas.height)`; eventos: `resize` → `resizeCanvas(); restart()`, `change` no `#radius` → `restart()`; loop com `requestAnimationFrame`: `sim.step()`, `draw(...)`, FPS com `performance.now()` em média suavizada; atualizar `#stats` ~4×/s com FPS, partículas, testes/frame e modo (research R7, R8)
-- [ ] T014 [US1] Rodar `node --test tests/`; validar manualmente cenários 1, 2, 3, 7 e 8 do quickstart; commit "Simulação com força bruta, ricochete e painel"
+- [ ] T014 [US1] Rodar `node --test`; validar manualmente cenários 1, 2, 3, 7 e 8 do quickstart; commit "Simulação com força bruta, ricochete e painel"
 
 **Checkpoint**: MVP funcional em força bruta
 
@@ -86,7 +86,7 @@ description: "Task list for Demo de Colisão de Partículas com Quadtree"
 - [ ] T015 [US2] Adicionar testes em `tests/simulation.test.js`: para 500 partículas aleatórias (raio 8, área 800×600) e uma árvore construída com elas, `findPairsQuadtree` retorna o mesmo conjunto de pares que `findPairsBruteForce` (comparar como conjunto de chaves `"menorId-maiorId"`), sem pares duplicados, e com `tests` menor; com 1000 partículas de raio 4 em 1600×900, `tests` da Quadtree ≤ 1/10 da força bruta (SC-002)
 - [ ] T016 [US2] Implementar `findPairsQuadtree(particles, tree)` em `src/simulation.js`: para cada `p`, `tree.query(new Rect(p.x − 2p.r, p.y − 2p.r, 4p.r, 4p.r))`, e para cada candidata `q` com `q.id > p.id` contar um teste e, se `particlesOverlap`, adicionar o par (research R5); em `step()`, escolher a função conforme `this.mode` (`'brute'` | `'quadtree'`); adicionar `findPairsQuadtree` ao export
 - [ ] T017 [US2] Em `src/main.js`: `#modeBtn` alterna `sim.mode` entre `'brute'` e `'quadtree'` sem reiniciar e mostra o modo atual no rótulo; slider `#count` atualiza `#countValue` no `input` e chama `restart()` no `change`
-- [ ] T018 [US2] Rodar `node --test tests/`; validar cenários 3 e 4 do quickstart; commit "Modo Quadtree e controles de modo e quantidade"
+- [ ] T018 [US2] Rodar `node --test`; validar cenários 3 e 4 do quickstart; commit "Modo Quadtree e controles de modo e quantidade"
 
 **Checkpoint**: Comparação entre modos funcionando
 
@@ -115,7 +115,7 @@ description: "Task list for Demo de Colisão de Partículas com Quadtree"
 - [ ] T022 [US4] Em `src/simulation.js`: método `setSelection(rect)` (aceita `Rect` ou `null`); ao fim de `step()`, zerar `selected` de todas e, se houver seleção, `this.tree.query(this.selection)` marca `selected = true` e define `selectedCount` (0 sem seleção)
 - [ ] T023 [US4] Em `src/renderer.js`: partículas com `selected` desenhadas com destaque distinto do vermelho (ex.: contorno amarelo); desenhar `dragRect` (se não nulo) ou `sim.selection` como retângulo tracejado
 - [ ] T024 [US4] Em `src/main.js`: `mousedown` guarda o ponto inicial; `mousemove` com botão pressionado atualiza `dragRect` normalizado (largura e altura positivas em qualquer direção) e chama `sim.setSelection(dragRect)`, para o destaque aparecer durante o arrasto; `mouseup` mantém a seleção se arrastou mais de 3 px, senão chama `sim.setSelection(null)`; limpar `dragRect`; mostrar "encontradas: N" em `#stats` quando há seleção
-- [ ] T025 [US4] Rodar `node --test tests/`; validar cenário 6 do quickstart; commit "Seleção por região com range query"
+- [ ] T025 [US4] Rodar `node --test`; validar cenário 6 do quickstart; commit "Seleção por região com range query"
 
 **Checkpoint**: Todas as stories funcionando
 
@@ -124,7 +124,7 @@ description: "Task list for Demo de Colisão de Partículas com Quadtree"
 ## Phase 7: Polish & Cross-Cutting Concerns
 
 - [ ] T026 Revisar `src/*.js` quanto a simplicidade e didática: remover código morto, conferir comentários explicando subdivisão, consulta, busca de candidatas e ricochete
-- [ ] T027 [P] Criar `README.md` curto: o que é a demo, como abrir (`index.html`) e como testar (`node --test tests/`)
+- [ ] T027 [P] Criar `README.md` curto: o que é a demo, como abrir (`index.html`) e como testar (`node --test`)
 - [ ] T028 Executar todos os cenários de [quickstart.md](./quickstart.md), incluindo o 1 (anima em < 2 s, SC-001) e o 9 (2000 partículas de raio 32); commit "Revisão final e README"
 
 ---
