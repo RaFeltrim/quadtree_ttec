@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quadtree: colisão de partículas</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+
+  <div id="panel">
+    <label>
+      Partículas: <span id="countValue">200</span>
+      <input id="count" type="range" min="10" max="2000" value="200">
+    </label>
+    <label>
+      Raio (px):
+      <select id="radius">
+        <option value="2">2</option>
+        <option value="4" selected>4</option>
+        <option value="8">8</option>
+        <option value="16">16</option>
+        <option value="32">32</option>
+      </select>
+    </label>
+    <button id="modeBtn">Modo: força bruta</button>
+    <label><input id="showGrid" type="checkbox"> Mostrar grade</label>
+    <pre id="stats"></pre>
+  </div>
+
+  <!-- Scripts clássicos (não ES modules): assim a demo funciona abrindo o arquivo direto, sem servidor. -->
+  <script src="src/particle.js"></script>
+  <script src="src/quadtree.js"></script>
+  <script src="src/simulation.js"></script>
+  <script src="src/renderer.js"></script>
+  <script src="src/main.js"></script>
+</body>
+</html>
