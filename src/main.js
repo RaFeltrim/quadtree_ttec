@@ -39,6 +39,33 @@ modeBtn.addEventListener('click', () => {
   modeBtn.textContent = sim.mode === 'brute' ? 'Modo: força bruta' : 'Modo: Quadtree';
 });
 
+// Seleção com o mouse: arrastar desenha um retângulo e atualiza a range query na hora.
+let dragStart = null;
+let dragRect = null;
+
+// Retângulo com largura e altura positivas, em qualquer direção de arrasto.
+function rectFromPoints(x1, y1, x2, y2) {
+  return new Rect(Math.min(x1, x2), Math.min(y1, y2), Math.abs(x2 - x1), Math.abs(y2 - y1));
+}
+
+canvas.addEventListener('mousedown', (e) => {
+  dragStart = { x: e.offsetX, y: e.offsetY };
+});
+
+canvas.addEventListener('mousemove', (e) => {
+  if (!dragStart) return;
+  dragRect = rectFromPoints(dragStart.x, dragStart.y, e.offsetX, e.offsetY);
+  sim.setSelection(dragRect);
+});
+
+window.addEventListener('mouseup', () => {
+  if (!dragStart) return;
+  // Clique sem arrastar (menos de 3 px) limpa a seleção.
+  if (!dragRect || (dragRect.w < 3 && dragRect.h < 3)) sim.setSelection(null);
+  dragStart = null;
+  dragRect = null;
+});
+
 // FPS: média suavizada do tempo entre frames; o painel é atualizado ~4 vezes por segundo.
 let lastTime = performance.now();
 let fps = 60;
@@ -51,7 +78,8 @@ function updateStats(now) {
     `FPS:        ${fps.toFixed(0)}\n` +
     `Partículas: ${sim.particles.length}\n` +
     `Testes:     ${sim.tests}\n` +
-    `Modo:       ${sim.mode === 'brute' ? 'força bruta' : 'Quadtree'}`;
+    `Modo:       ${sim.mode === 'brute' ? 'força bruta' : 'Quadtree'}` +
+    (sim.selection ? `\nEncontradas: ${sim.selectedCount}` : '');
 }
 
 function loop(now) {
@@ -60,7 +88,7 @@ function loop(now) {
   if (elapsed > 0) fps = fps * 0.9 + (1000 / elapsed) * 0.1;
 
   sim.step();
-  draw(ctx, sim, showGridInput.checked, null);
+  draw(ctx, sim, showGridInput.checked, dragRect);
   updateStats(now);
   requestAnimationFrame(loop);
 }

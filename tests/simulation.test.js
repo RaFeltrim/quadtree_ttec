@@ -92,3 +92,29 @@ test('step usa o modo escolhido', () => {
   sim.step();
   assert.ok(sim.tests < 49950);
 });
+
+test('seleção marca exatamente as partículas com centro dentro da região', () => {
+  const sim = new Simulation(400, 400);
+  sim.particles = [
+    new Particle(0, 50, 50, 0, 0, 4),
+    new Particle(1, 80, 60, 0, 0, 4),
+    new Particle(2, 200, 200, 0, 0, 4),
+    new Particle(3, 350, 30, 0, 0, 4),
+  ];
+  sim.setSelection(new Rect(40, 40, 100, 100));
+  sim.step();
+  assert.deepEqual(sim.particles.map((p) => p.selected), [true, true, false, false]);
+  assert.equal(sim.selectedCount, 2);
+
+  sim.setSelection(null);
+  sim.step();
+  assert.ok(sim.particles.every((p) => !p.selected));
+  assert.equal(sim.selectedCount, 0);
+});
+
+test('reset limpa a seleção', () => {
+  const sim = new Simulation(400, 400);
+  sim.setSelection(new Rect(0, 0, 100, 100));
+  sim.reset(10, 4, 400, 400);
+  assert.equal(sim.selection, null);
+});

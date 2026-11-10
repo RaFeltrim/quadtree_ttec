@@ -73,6 +73,11 @@ class Simulation {
     this.selectedCount = 0;
   }
 
+  // Define (Rect) ou limpa (null) a região de seleção; aplicada no próximo step().
+  setSelection(rect) {
+    this.selection = rect;
+  }
+
   // Avança um frame.
   step() {
     // 1) Mover e quicar nas bordas.
@@ -94,6 +99,16 @@ class Simulation {
       resolveCollision(a, b);
       a.colliding = true;
       b.colliding = true;
+    }
+
+    // 5) Range query: marcar as partículas dentro da região selecionada.
+    // Usa a árvore deste frame (posições de antes do ricochete; diferença imperceptível).
+    for (const p of this.particles) p.selected = false;
+    this.selectedCount = 0;
+    if (this.selection) {
+      const found = this.tree.query(this.selection);
+      for (const p of found) p.selected = true;
+      this.selectedCount = found.length;
     }
   }
 }

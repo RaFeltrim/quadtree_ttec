@@ -111,11 +111,11 @@ description: "Task list for Demo de Colisão de Partículas com Quadtree"
 
 **Independent Test**: Cenário 6 do quickstart e teste automatizado da seleção.
 
-- [ ] T021 [US4] Adicionar testes em `tests/simulation.test.js`, montando `sim.particles` manualmente com partículas paradas (`vx = vy = 0`) e sem sobreposição: após `setSelection(rect)` e `step()`, `selected` é `true` exatamente para partículas com centro dentro do rect e `selectedCount` bate com essa contagem; `setSelection(null)` + `step()` zera `selected` e `selectedCount`; `reset` limpa a seleção
-- [ ] T022 [US4] Em `src/simulation.js`: método `setSelection(rect)` (aceita `Rect` ou `null`); ao fim de `step()`, zerar `selected` de todas e, se houver seleção, `this.tree.query(this.selection)` marca `selected = true` e define `selectedCount` (0 sem seleção)
+- [X] T021 [US4] Adicionar testes em `tests/simulation.test.js`, montando `sim.particles` manualmente com partículas paradas (`vx = vy = 0`) e sem sobreposição: após `setSelection(rect)` e `step()`, `selected` é `true` exatamente para partículas com centro dentro do rect e `selectedCount` bate com essa contagem; `setSelection(null)` + `step()` zera `selected` e `selectedCount`; `reset` limpa a seleção
+- [X] T022 [US4] Em `src/simulation.js`: método `setSelection(rect)` (aceita `Rect` ou `null`); ao fim de `step()`, zerar `selected` de todas e, se houver seleção, `this.tree.query(this.selection)` marca `selected = true` e define `selectedCount` (0 sem seleção)
 - [X] T023 [US4] Em `src/renderer.js`: partículas com `selected` desenhadas com destaque distinto do vermelho (ex.: contorno amarelo); desenhar `dragRect` (se não nulo) ou `sim.selection` como retângulo tracejado
-- [ ] T024 [US4] Em `src/main.js`: `mousedown` guarda o ponto inicial; `mousemove` com botão pressionado atualiza `dragRect` normalizado (largura e altura positivas em qualquer direção) e chama `sim.setSelection(dragRect)`, para o destaque aparecer durante o arrasto; `mouseup` mantém a seleção se arrastou mais de 3 px, senão chama `sim.setSelection(null)`; limpar `dragRect`; mostrar "encontradas: N" em `#stats` quando há seleção
-- [ ] T025 [US4] Rodar `node --test`; validar cenário 6 do quickstart; commit "Seleção por região com range query"
+- [X] T024 [US4] Em `src/main.js`: `mousedown` guarda o ponto inicial; `mousemove` com botão pressionado atualiza `dragRect` normalizado (largura e altura positivas em qualquer direção) e chama `sim.setSelection(dragRect)`, para o destaque aparecer durante o arrasto; `mouseup` mantém a seleção se arrastou mais de 3 px, senão chama `sim.setSelection(null)`; limpar `dragRect`; mostrar "encontradas: N" em `#stats` quando há seleção
+- [X] T025 [US4] Rodar `node --test`; validar cenário 6 do quickstart; commit "Seleção por região com range query"
 
 **Checkpoint**: Todas as stories funcionando
 
