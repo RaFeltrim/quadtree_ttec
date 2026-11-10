@@ -24,6 +24,24 @@ function findPairsBruteForce(particles) {
   return { pairs, tests };
 }
 
+// Quadtree: cada partícula só é comparada com as vizinhas.
+// Como todas têm o mesmo raio r, quem pode tocar `p` tem o centro a no máximo 2r
+// de distância, ou seja, dentro de um quadrado de lado 4r centrado em `p`.
+function findPairsQuadtree(particles, tree) {
+  const pairs = [];
+  let tests = 0;
+  for (const p of particles) {
+    const range = new Rect(p.x - 2 * p.r, p.y - 2 * p.r, 4 * p.r, 4 * p.r);
+    for (const q of tree.query(range)) {
+      // q.id > p.id: cada par é testado (e contado) uma só vez, como na força bruta.
+      if (q.id <= p.id) continue;
+      tests++;
+      if (particlesOverlap(p, q)) pairs.push([p, q]);
+    }
+  }
+  return { pairs, tests };
+}
+
 class Simulation {
   constructor(width, height) {
     this.width = width;
@@ -65,7 +83,9 @@ class Simulation {
     for (const p of this.particles) this.tree.insert(p);
 
     // 3) Detectar todos os pares com as posições congeladas.
-    const { pairs, tests } = findPairsBruteForce(this.particles);
+    const { pairs, tests } = this.mode === 'brute'
+      ? findPairsBruteForce(this.particles)
+      : findPairsQuadtree(this.particles, this.tree);
     this.tests = tests;
 
     // 4) Só depois resolver: separar, ricochetear e pintar de vermelho.
@@ -78,4 +98,4 @@ class Simulation {
   }
 }
 
-if (typeof module !== 'undefined') module.exports = { Simulation, findPairsBruteForce };
+if (typeof module !== 'undefined') module.exports = { Simulation, findPairsBruteForce, findPairsQuadtree };

@@ -83,10 +83,10 @@ description: "Task list for Demo de Colisão de Partículas com Quadtree"
 
 **Independent Test**: Cenário 4 do quickstart (1000 partículas: Quadtree ≥10× menos testes, mesmos pares) e testes automatizados de equivalência.
 
-- [ ] T015 [US2] Adicionar testes em `tests/simulation.test.js`: para 500 partículas aleatórias (raio 8, área 800×600) e uma árvore construída com elas, `findPairsQuadtree` retorna o mesmo conjunto de pares que `findPairsBruteForce` (comparar como conjunto de chaves `"menorId-maiorId"`), sem pares duplicados, e com `tests` menor; com 1000 partículas de raio 4 em 1600×900, `tests` da Quadtree ≤ 1/10 da força bruta (SC-002)
-- [ ] T016 [US2] Implementar `findPairsQuadtree(particles, tree)` em `src/simulation.js`: para cada `p`, `tree.query(new Rect(p.x − 2p.r, p.y − 2p.r, 4p.r, 4p.r))`, e para cada candidata `q` com `q.id > p.id` contar um teste e, se `particlesOverlap`, adicionar o par (research R5); em `step()`, escolher a função conforme `this.mode` (`'brute'` | `'quadtree'`); adicionar `findPairsQuadtree` ao export
-- [ ] T017 [US2] Em `src/main.js`: `#modeBtn` alterna `sim.mode` entre `'brute'` e `'quadtree'` sem reiniciar e mostra o modo atual no rótulo; slider `#count` atualiza `#countValue` no `input` e chama `restart()` no `change`
-- [ ] T018 [US2] Rodar `node --test`; validar cenários 3 e 4 do quickstart; commit "Modo Quadtree e controles de modo e quantidade"
+- [X] T015 [US2] Adicionar testes em `tests/simulation.test.js`: para 500 partículas aleatórias (raio 8, área 800×600) e uma árvore construída com elas, `findPairsQuadtree` retorna o mesmo conjunto de pares que `findPairsBruteForce` (comparar como conjunto de chaves `"menorId-maiorId"`), sem pares duplicados, e com `tests` menor; com 1000 partículas de raio 4 em 1600×900, `tests` da Quadtree ≤ 1/10 da força bruta (SC-002)
+- [X] T016 [US2] Implementar `findPairsQuadtree(particles, tree)` em `src/simulation.js`: para cada `p`, `tree.query(new Rect(p.x − 2p.r, p.y − 2p.r, 4p.r, 4p.r))`, e para cada candidata `q` com `q.id > p.id` contar um teste e, se `particlesOverlap`, adicionar o par (research R5); em `step()`, escolher a função conforme `this.mode` (`'brute'` | `'quadtree'`); adicionar `findPairsQuadtree` ao export
+- [X] T017 [US2] Em `src/main.js`: `#modeBtn` alterna `sim.mode` entre `'brute'` e `'quadtree'` sem reiniciar e mostra o modo atual no rótulo; slider `#count` atualiza `#countValue` no `input` e chama `restart()` no `change`
+- [X] T018 [US2] Rodar `node --test`; validar cenários 3 e 4 do quickstart; commit "Modo Quadtree e controles de modo e quantidade"
 
 **Checkpoint**: Comparação entre modos funcionando
 

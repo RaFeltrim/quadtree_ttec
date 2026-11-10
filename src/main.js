@@ -27,6 +27,18 @@ window.addEventListener('resize', () => {
 });
 radiusSelect.addEventListener('change', restart);
 
+// O slider mostra o valor enquanto arrasta e só recomeça ao soltar.
+countInput.addEventListener('input', () => {
+  countValue.textContent = countInput.value;
+});
+countInput.addEventListener('change', restart);
+
+// Trocar o modo não recomeça: as mesmas partículas seguem, só muda a detecção.
+modeBtn.addEventListener('click', () => {
+  sim.mode = sim.mode === 'brute' ? 'quadtree' : 'brute';
+  modeBtn.textContent = sim.mode === 'brute' ? 'Modo: força bruta' : 'Modo: Quadtree';
+});
+
 // FPS: média suavizada do tempo entre frames; o painel é atualizado ~4 vezes por segundo.
 let lastTime = performance.now();
 let fps = 60;

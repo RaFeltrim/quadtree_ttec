@@ -1,7 +1,17 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { Particle } = require('../src/particle.js');
-const { Simulation, findPairsBruteForce } = require('../src/simulation.js');
+const { Rect, Quadtree } = require('../src/quadtree.js');
+const { Simulation, findPairsBruteForce, findPairsQuadtree } = require('../src/simulation.js');
+
+// Cria `count` partículas aleatórias e uma Quadtree com elas.
+function randomScene(count, radius, width, height) {
+  const sim = new Simulation(width, height);
+  sim.reset(count, radius, width, height);
+  const tree = new Quadtree(new Rect(0, 0, width, height));
+  for (const p of sim.particles) tree.insert(p);
+  return { particles: sim.particles, tree };
+}
 
 // Chave de par independente da ordem, para comparar conjuntos de pares.
 const pairKey = ([a, b]) => `${Math.min(a.id, b.id)}-${Math.max(a.id, b.id)}`;
@@ -52,4 +62,33 @@ test('step marca como colidindo só as partículas sobrepostas', () => {
   assert.equal(sim.particles[1].colliding, true);
   assert.equal(sim.particles[2].colliding, false);
   assert.equal(sim.tests, 3);
+});
+
+test('findPairsQuadtree encontra os mesmos pares que a força bruta', () => {
+  const { particles, tree } = randomScene(500, 8, 800, 600);
+  const brute = findPairsBruteForce(particles);
+  const quad = findPairsQuadtree(particles, tree);
+
+  const quadKeys = quad.pairs.map(pairKey);
+  assert.equal(new Set(quadKeys).size, quadKeys.length, 'sem pares duplicados');
+  assert.deepEqual(quadKeys.sort(), brute.pairs.map(pairKey).sort());
+  assert.ok(quad.tests < brute.tests);
+});
+
+test('com 1000 partículas a Quadtree faz no máximo 1/10 dos testes (SC-002)', () => {
+  const { particles, tree } = randomScene(1000, 4, 1600, 900);
+  const brute = findPairsBruteForce(particles);
+  const quad = findPairsQuadtree(particles, tree);
+  assert.ok(quad.tests <= brute.tests / 10, `${quad.tests} vs ${brute.tests}`);
+});
+
+test('step usa o modo escolhido', () => {
+  const sim = new Simulation(1600, 900);
+  sim.reset(1000, 4, 1600, 900);
+  sim.mode = 'brute';
+  sim.step();
+  assert.equal(sim.tests, 499500);
+  sim.mode = 'quadtree';
+  sim.step();
+  assert.ok(sim.tests < 49950);
 });
