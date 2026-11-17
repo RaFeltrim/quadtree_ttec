@@ -6,6 +6,8 @@ const countInput = document.getElementById('count');
 const countValue = document.getElementById('countValue');
 const radiusSelect = document.getElementById('radius');
 const modeBtn = document.getElementById('modeBtn');
+const stepBtn = document.getElementById('stepBtn');
+const notice = document.getElementById('notice');
 const showGridInput = document.getElementById('showGrid');
 const stats = document.getElementById('stats');
 
@@ -38,6 +40,76 @@ modeBtn.addEventListener('click', () => {
   sim.mode = sim.mode === 'brute' ? 'quadtree' : 'brute';
   modeBtn.textContent = sim.mode === 'brute' ? 'Modo: força bruta' : 'Modo: Quadtree';
 });
+
+// Modo didático: a simulação para entre "mover + montar árvore" e "detectar + resolver",
+// e o usuário percorre a detecção passo a passo com as setas.
+const MAX_TRACE_PARTICLES = 200; // acima disso há passos demais para seguir à mão
+const LIMIT_NOTICE = `Modo didático: reduza para até ${MAX_TRACE_PARTICLES} partículas`;
+let trace = null; // null = desligado; senão { steps, index }
+
+function rebuildTrace() {
+  trace = { steps: buildTrace(sim.particles, sim.tree, sim.mode), index: 0 };
+}
+
+// Começa um frame: move as partículas, monta a árvore e para antes de detectar.
+function startTraceFrame() {
+  sim.moveAndBuildTree();
+  rebuildTrace();
+}
+
+function updateStepBtn() {
+  stepBtn.textContent = trace ? 'Modo didático: ligado' : 'Modo didático: desligado';
+}
+
+stepBtn.addEventListener('click', () => {
+  if (trace) {
+    sim.detectAndResolve(); // conclui o frame que estava pausado
+    trace = null;
+  } else if (sim.particles.length > MAX_TRACE_PARTICLES) {
+    notice.textContent = LIMIT_NOTICE;
+  } else {
+    startTraceFrame();
+    notice.textContent = '';
+  }
+  updateStepBtn();
+  stepBtn.blur();
+});
+
+// → / ← : próximo / anterior passo.
+window.addEventListener('keydown', (e) => {
+  if (!trace || (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft')) return;
+  e.preventDefault(); // a seta não deve mexer no slider em foco nem rolar a página
+  if (e.key === 'ArrowRight') {
+    trace.index = Math.min(trace.index + 1, trace.steps.length - 1);
+  } else {
+    trace.index = Math.max(trace.index - 1, 0);
+  }
+});
+
+// Frase que explica o passo atual no painel.
+function describeStep(s) {
+  if (s.type === 'particle') {
+    return sim.mode === 'brute'
+      ? `Partícula #${s.p.id}: comparar com todas as de id maior`
+      : `Partícula #${s.p.id}: buscar vizinhas na região tracejada`;
+  }
+  const dist = Math.hypot(s.q.x - s.p.x, s.q.y - s.p.y);
+  const minDist = s.p.r + s.q.r;
+  return s.overlap
+    ? `Teste #${s.p.id} × #${s.q.id}: ${dist.toFixed(1)} < ${minDist} → COLISÃO`
+    : `Teste #${s.p.id} × #${s.q.id}: ${dist.toFixed(1)} ≥ ${minDist} → sem colisão`;
+}
+
+function updateTraceStats() {
+  const s = trace.steps[trace.index];
+  stats.textContent =
+    `MODO DIDÁTICO (${sim.mode === 'brute' ? 'força bruta' : 'Quadtree'})\n` +
+    `Passo ${trace.index + 1} / ${trace.steps.length}\n` +
+    `${describeStep(s)}\n` +
+    `Testes até aqui:   ${s.tests}\n` +
+    `Colisões até aqui: ${s.collisions}\n` +
+    `→ ← passo   Shift+→ ← partícula`;
+}
 
 // Seleção com o mouse: arrastar desenha um retângulo e atualiza a range query na hora.
 let dragStart = null;
@@ -87,9 +159,14 @@ function loop(now) {
   lastTime = now;
   if (elapsed > 0) fps = fps * 0.9 + (1000 / elapsed) * 0.1;
 
-  sim.step();
-  draw(ctx, sim, showGridInput.checked, dragRect);
-  updateStats(now);
+  if (trace) {
+    drawTrace(ctx, sim, trace.steps, trace.index, showGridInput.checked);
+    updateTraceStats();
+  } else {
+    sim.step();
+    draw(ctx, sim, showGridInput.checked, dragRect);
+    updateStats(now);
+  }
   requestAnimationFrame(loop);
 }
 

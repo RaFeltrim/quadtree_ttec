@@ -48,3 +48,72 @@ function drawTree(ctx, node) {
     for (const child of node.children) drawTree(ctx, child);
   }
 }
+
+// ---------- Modo didático ----------
+
+const COLOR_DIM = 'rgba(136, 204, 255, 0.35)';
+const COLOR_FOCUS = '#fff';
+const COLOR_NO_HIT = '#4f4';
+const COLOR_OLD_TEST = 'rgba(200, 200, 200, 0.25)';
+
+// Desenha o passo `index` do trace: o que o algoritmo está olhando agora
+// e o caminho percorrido até ali para a partícula atual.
+function drawTrace(ctx, sim, steps, index, showGrid) {
+  ctx.fillStyle = COLOR_BACKGROUND;
+  ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+  if (showGrid && sim.tree) {
+    ctx.strokeStyle = COLOR_GRID;
+    ctx.lineWidth = 1;
+    drawTree(ctx, sim.tree);
+  }
+
+  // Partículas de colisões já encontradas até este passo ficam vermelhas; o resto, apagado.
+  const found = new Set();
+  for (let i = 0; i <= index; i++) {
+    const s = steps[i];
+    if (s.type === 'test' && s.overlap) {
+      found.add(s.p);
+      found.add(s.q);
+    }
+  }
+  for (const p of sim.particles) {
+    ctx.fillStyle = found.has(p) ? COLOR_COLLIDING : COLOR_DIM;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, 2 * Math.PI);
+    ctx.fill();
+  }
+
+  // Volta até o passo 'particle' para saber onde começou a partícula atual.
+  let start = index;
+  while (start > 0 && steps[start].type !== 'particle') start--;
+  const current = steps[index];
+  const p = steps[start].p;
+
+  // Testes já feitos por esta partícula (cinza) e o teste atual (verde = não colide, vermelho = colide).
+  for (let i = start; i <= index; i++) {
+    const s = steps[i];
+    if (s.type !== 'test') continue;
+    const isCurrent = i === index;
+    ctx.strokeStyle = isCurrent ? (s.overlap ? COLOR_COLLIDING : COLOR_NO_HIT) : COLOR_OLD_TEST;
+    ctx.lineWidth = isCurrent ? 2 : 1;
+    ctx.beginPath();
+    ctx.moveTo(s.p.x, s.p.y);
+    ctx.lineTo(s.q.x, s.q.y);
+    ctx.stroke();
+  }
+  if (current.type === 'test') {
+    ctx.strokeStyle = COLOR_FOCUS;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(current.q.x, current.q.y, current.q.r + 3, 0, 2 * Math.PI);
+    ctx.stroke();
+  }
+
+  // A partícula analisada ganha um anel branco.
+  ctx.strokeStyle = COLOR_FOCUS;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(p.x, p.y, p.r + 3, 0, 2 * Math.PI);
+  ctx.stroke();
+}

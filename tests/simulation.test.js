@@ -2,7 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { Particle } = require('../src/particle.js');
 const { Rect, Quadtree } = require('../src/quadtree.js');
-const { Simulation, findPairsBruteForce, findPairsQuadtree } = require('../src/simulation.js');
+const { Simulation, findPairsBruteForce, findPairsQuadtree, buildTrace } = require('../src/simulation.js');
 
 // Cria `count` partículas aleatórias e uma Quadtree com elas.
 function randomScene(count, radius, width, height) {
@@ -137,4 +137,38 @@ test('step equivale a moveAndBuildTree + detectAndResolve', () => {
   const state = (sim) => sim.particles.map((p) => [p.x, p.y, p.vx, p.vy, p.colliding]);
   assert.deepEqual(state(a), state(b));
   assert.equal(a.particles[0].colliding, true);
+});
+
+// Pares com colisão registrados no trace, como chaves "menor-maior".
+const tracePairKeys = (steps) =>
+  steps.filter((s) => s.type === 'test' && s.overlap).map((s) => pairKey([s.p, s.q])).sort();
+
+// Confere que o trace faz os mesmos testes e acha os mesmos pares que `expected`.
+function assertTraceMatches(steps, expected) {
+  const last = steps[steps.length - 1];
+  assert.equal(steps.filter((s) => s.type === 'test').length, expected.tests);
+  assert.equal(last.tests, expected.tests);
+  assert.equal(last.collisions, expected.pairs.length);
+  assert.deepEqual(tracePairKeys(steps), expected.pairs.map(pairKey).sort());
+}
+
+test('buildTrace em força bruta: mesmos testes e pares, um passo por partícula', () => {
+  const { particles, tree } = randomScene(300, 8, 800, 600);
+  const steps = buildTrace(particles, tree, 'brute');
+  assertTraceMatches(steps, findPairsBruteForce(particles));
+
+  assert.equal(steps[0].type, 'particle');
+  assert.equal(steps.some((s) => s.type === 'visit'), false);
+  const particleSteps = steps.filter((s) => s.type === 'particle');
+  assert.equal(particleSteps.length, 300);
+  assert.ok(particleSteps.every((s) => s.range === null));
+  for (let i = 1; i < steps.length; i++) {
+    assert.ok(steps[i].tests >= steps[i - 1].tests);
+    assert.ok(steps[i].collisions >= steps[i - 1].collisions);
+  }
+});
+
+test('buildTrace em Quadtree: mesmos testes e pares da detecção normal', () => {
+  const { particles, tree } = randomScene(300, 8, 800, 600);
+  assertTraceMatches(buildTrace(particles, tree, 'quadtree'), findPairsQuadtree(particles, tree));
 });

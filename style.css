@@ -33,3 +33,12 @@ canvas {
   margin: 0;
   font-family: monospace;
 }
+
+#notice {
+  color: #fd3;
+  font-size: 12px;
+}
+
+#notice:empty {
+  display: none;
+}

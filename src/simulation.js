@@ -121,4 +121,41 @@ class Simulation {
   }
 }
 
-if (typeof module !== 'undefined') module.exports = { Simulation, findPairsBruteForce, findPairsQuadtree };
+// Modo didático: refaz a detecção do frame anotando cada iteração como um "passo",
+// para a tela poder mostrar o algoritmo trabalhando. Faz exatamente os mesmos testes
+// que findPairsBruteForce / findPairsQuadtree; a diferença é que guarda o que aconteceu.
+//   { type: 'particle', p, range }   começa a analisar a partícula p
+//   { type: 'test', p, q, overlap }  testou o par (p, q); overlap = colidem?
+// Cada passo também leva os totais acumulados `tests` e `collisions`.
+function buildTrace(particles, tree, mode) {
+  const steps = [];
+  let tests = 0;
+  let collisions = 0;
+
+  function addTest(p, q) {
+    tests++;
+    const overlap = particlesOverlap(p, q);
+    if (overlap) collisions++;
+    steps.push({ type: 'test', p, q, overlap, tests, collisions });
+  }
+
+  if (mode === 'brute') {
+    for (let i = 0; i < particles.length; i++) {
+      const p = particles[i];
+      steps.push({ type: 'particle', p, range: null, tests, collisions });
+      for (let j = i + 1; j < particles.length; j++) addTest(p, particles[j]);
+    }
+    return steps;
+  }
+
+  for (const p of particles) {
+    const range = new Rect(p.x - 2 * p.r, p.y - 2 * p.r, 4 * p.r, 4 * p.r);
+    steps.push({ type: 'particle', p, range, tests, collisions });
+    for (const q of tree.query(range)) {
+      if (q.id > p.id) addTest(p, q);
+    }
+  }
+  return steps;
+}
+
+if (typeof module !== 'undefined') module.exports = { Simulation, findPairsBruteForce, findPairsQuadtree, buildTrace };
