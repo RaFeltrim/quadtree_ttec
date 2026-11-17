@@ -198,3 +198,42 @@ test('buildTrace em Quadtree mostra o caminho com os testes intercalados', () =>
     }
   }
 });
+
+test('detect devolve os pares da detecção sem alterar as partículas', () => {
+  const sim = new Simulation(800, 600);
+  sim.reset(300, 8, 800, 600);
+  sim.moveAndBuildTree();
+  const snapshot = () => sim.particles.map((p) => [p.x, p.y, p.vx, p.vy, p.colliding]);
+  const before = snapshot();
+  for (const [mode, expected] of [
+    ['brute', findPairsBruteForce(sim.particles)],
+    ['quadtree', findPairsQuadtree(sim.particles, sim.tree)],
+  ]) {
+    sim.mode = mode;
+    const result = sim.detect();
+    assert.deepEqual(result.pairs.map(pairKey), expected.pairs.map(pairKey), mode);
+    assert.equal(result.tests, expected.tests, mode);
+    assert.equal(sim.tests, expected.tests, mode);
+  }
+  assert.deepEqual(snapshot(), before);
+});
+
+test('detectAndResolve equivale a resolve(detect().pairs)', () => {
+  const make = () => {
+    const sim = new Simulation(400, 400);
+    sim.particles = [
+      new Particle(0, 100, 100, 1, 0, 8),
+      new Particle(1, 110, 100, -1, 0, 8),
+      new Particle(2, 300, 300, 0, 1, 8),
+    ];
+    sim.moveAndBuildTree();
+    return sim;
+  };
+  const a = make();
+  a.detectAndResolve();
+  const b = make();
+  b.resolve(b.detect().pairs);
+  const state = (sim) => sim.particles.map((p) => [p.x, p.y, p.vx, p.vy, p.colliding]);
+  assert.deepEqual(state(a), state(b));
+  assert.equal(a.particles[0].colliding, true);
+});

@@ -44,9 +44,9 @@ Princípio IV da constituição. `renderer.js` e `main.js` são verificados manu
 
 **Purpose**: Saber se houve colisão antes de resolver (research R1), usado pelas duas stories
 
-- [ ] T002 Adicionar testes em `tests/simulation.test.js`: (a) para 300 partículas aleatórias (`sim.reset(300, 8, 800, 600)` + `sim.moveAndBuildTree()`), `sim.detect()` devolve nos dois modos os mesmos `pairs` (mesma ordem) e `tests` que `findPairsBruteForce` / `findPairsQuadtree`, atualiza `sim.tests` e não altera `x, y, vx, vy, colliding` de nenhuma partícula; (b) duas simulações montadas à mão com partículas sobrepostas: uma chama `detectAndResolve()`, a outra `resolve(detect().pairs)`; `x, y, vx, vy, colliding` ficam iguais
-- [ ] T003 Em `src/simulation.js`: dividir `detectAndResolve()` em `detect()` (passo 3: detecta conforme `mode`, `this.tests = tests`, devolve `{ pairs, tests }`) e `resolve(pairs)` (passos 4–5: zera `colliding`, `resolveCollision` em cada par marcando `colliding`, seleção); `detectAndResolve()` passa a ser `this.resolve(this.detect().pairs)`, com comentário explicando que a separação permite pausar antes de resolver
-- [ ] T004 Rodar `node --test` (todos passam); commit "Separa detecção e resolução de colisões"
+- [X] T002 Adicionar testes em `tests/simulation.test.js`: (a) para 300 partículas aleatórias (`sim.reset(300, 8, 800, 600)` + `sim.moveAndBuildTree()`), `sim.detect()` devolve nos dois modos os mesmos `pairs` (mesma ordem) e `tests` que `findPairsBruteForce` / `findPairsQuadtree`, atualiza `sim.tests` e não altera `x, y, vx, vy, colliding` de nenhuma partícula; (b) duas simulações montadas à mão com partículas sobrepostas: uma chama `detectAndResolve()`, a outra `resolve(detect().pairs)`; `x, y, vx, vy, colliding` ficam iguais
+- [X] T003 Em `src/simulation.js`: dividir `detectAndResolve()` em `detect()` (passo 3: detecta conforme `mode`, `this.tests = tests`, devolve `{ pairs, tests }`) e `resolve(pairs)` (passos 4–5: zera `colliding`, `resolveCollision` em cada par marcando `colliding`, seleção); `detectAndResolve()` passa a ser `this.resolve(this.detect().pairs)`, com comentário explicando que a separação permite pausar antes de resolver
+- [X] T004 Rodar `node --test` (todos passam); commit "Separa detecção e resolução de colisões"
 
 **Checkpoint**: É possível olhar os pares de um frame antes do ricochete
 

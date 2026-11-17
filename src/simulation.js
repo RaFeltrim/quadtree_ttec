@@ -94,13 +94,22 @@ class Simulation {
     for (const p of this.particles) this.tree.insert(p);
   }
 
+  // Detectar e resolver também ficam separados: assim o modo didático pode olhar
+  // se houve colisão neste frame e pausar antes do ricochete.
   detectAndResolve() {
-    // 3) Detectar todos os pares com as posições congeladas.
-    const { pairs, tests } = this.mode === 'brute'
+    this.resolve(this.detect().pairs);
+  }
+
+  // 3) Detectar todos os pares com as posições congeladas (não altera as partículas).
+  detect() {
+    const result = this.mode === 'brute'
       ? findPairsBruteForce(this.particles)
       : findPairsQuadtree(this.particles, this.tree);
-    this.tests = tests;
+    this.tests = result.tests;
+    return result;
+  }
 
+  resolve(pairs) {
     // 4) Só depois resolver: separar, ricochetear e pintar de vermelho.
     for (const p of this.particles) p.colliding = false;
     for (const [a, b] of pairs) {
