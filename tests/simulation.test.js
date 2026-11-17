@@ -118,3 +118,23 @@ test('reset limpa a seleção', () => {
   sim.reset(10, 4, 400, 400);
   assert.equal(sim.selection, null);
 });
+
+test('step equivale a moveAndBuildTree + detectAndResolve', () => {
+  const make = () => {
+    const sim = new Simulation(400, 400);
+    sim.particles = [
+      new Particle(0, 100, 100, 1, 0, 8),
+      new Particle(1, 112, 100, -1, 0, 8), // sobrepõe a 0 depois de mover
+      new Particle(2, 300, 300, 0, 1, 8),
+    ];
+    return sim;
+  };
+  const a = make();
+  a.step();
+  const b = make();
+  b.moveAndBuildTree();
+  b.detectAndResolve();
+  const state = (sim) => sim.particles.map((p) => [p.x, p.y, p.vx, p.vy, p.colliding]);
+  assert.deepEqual(state(a), state(b));
+  assert.equal(a.particles[0].colliding, true);
+});

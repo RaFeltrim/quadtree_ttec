@@ -78,15 +78,23 @@ class Simulation {
     this.selection = rect;
   }
 
-  // Avança um frame.
+  // Avança um frame. Dividido em duas metades para o modo didático poder
+  // parar entre elas e mostrar a detecção passo a passo.
   step() {
+    this.moveAndBuildTree();
+    this.detectAndResolve();
+  }
+
+  moveAndBuildTree() {
     // 1) Mover e quicar nas bordas.
     for (const p of this.particles) p.move(this.width, this.height);
 
     // 2) Reconstruir a Quadtree do zero (mais simples que atualizá-la).
     this.tree = new Quadtree(new Rect(0, 0, this.width, this.height));
     for (const p of this.particles) this.tree.insert(p);
+  }
 
+  detectAndResolve() {
     // 3) Detectar todos os pares com as posições congeladas.
     const { pairs, tests } = this.mode === 'brute'
       ? findPairsBruteForce(this.particles)

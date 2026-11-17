@@ -42,9 +42,9 @@ verificados manualmente via [quickstart.md](./quickstart.md).
 
 **Purpose**: Pausar o frame entre "mover + montar árvore" e "detectar + resolver" (research R1), usado por todas as stories
 
-- [ ] T002 Adicionar teste em `tests/simulation.test.js`: duas simulações montadas à mão (partículas com velocidade, duas delas sobrepostas após o movimento); uma chama `step()`, a outra `moveAndBuildTree()` + `detectAndResolve()`; `x, y, vx, vy, colliding` de todas as partículas ficam iguais
-- [ ] T003 Em `src/simulation.js`: dividir `step()` em `moveAndBuildTree()` (passos 1–2: mover e reconstruir `this.tree`) e `detectAndResolve()` (passos 3–5: detectar conforme `mode`, `tests`, resolver, `colliding`, seleção); `step()` passa a chamar as duas, com comentário explicando que a divisão serve para o modo didático parar entre elas
-- [ ] T004 Rodar `node --test` (todos os testes antigos e o novo passam); commit "Divide o passo do frame em duas metades"
+- [X] T002 Adicionar teste em `tests/simulation.test.js`: duas simulações montadas à mão (partículas com velocidade, duas delas sobrepostas após o movimento); uma chama `step()`, a outra `moveAndBuildTree()` + `detectAndResolve()`; `x, y, vx, vy, colliding` de todas as partículas ficam iguais
+- [X] T003 Em `src/simulation.js`: dividir `step()` em `moveAndBuildTree()` (passos 1–2: mover e reconstruir `this.tree`) e `detectAndResolve()` (passos 3–5: detectar conforme `mode`, `tests`, resolver, `colliding`, seleção); `step()` passa a chamar as duas, com comentário explicando que a divisão serve para o modo didático parar entre elas
+- [X] T004 Rodar `node --test` (todos os testes antigos e o novo passam); commit "Divide o passo do frame em duas metades"
 
 **Checkpoint**: Simulação pode ser pausada no instante da detecção
 
