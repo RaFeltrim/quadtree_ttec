@@ -76,9 +76,9 @@ Princípio IV da constituição. `renderer.js` e `main.js` são verificados manu
 
 **Independent Test**: Cenários 7–10 e 14 do quickstart.
 
-- [ ] T012 [US2] Em `src/main.js`: constante `COOLDOWN_MS = 5000` e variável `cooldownEnd`; função `endPresentation()` → `sim.resolve(trace.pairs)`, `trace = null`, `didactic = 'cooldown'`, `cooldownEnd = performance.now() + COOLDOWN_MS`; **Esc** em `'presenting'` e → além do último passo chamam `endPresentation()` (substitui o comportamento temporário do T009); no `loop`, `'cooldown'` → `step` + `draw` normais e, quando `now >= cooldownEnd`, `didactic = 'waiting'`; desligar ou `restart()` durante o intervalo descartam o intervalo (data-model)
-- [ ] T013 [US2] Em `src/main.js` (painel): em `'cooldown'`, estatísticas normais + "Modo didático: próxima pausa em N s" (`N = Math.ceil((cooldownEnd − now) / 1000)`)
-- [ ] T014 [US2] Rodar `node --test`; validar cenários 7–10, 14 e 15 do quickstart; commit "Modo didático: intervalo de 5 s entre colisões"
+- [X] T012 [US2] Em `src/main.js`: constante `COOLDOWN_MS = 5000` e variável `cooldownEnd`; função `endPresentation()` → `sim.resolve(trace.pairs)`, `trace = null`, `didactic = 'cooldown'`, `cooldownEnd = performance.now() + COOLDOWN_MS`; **Esc** em `'presenting'` e → além do último passo chamam `endPresentation()` (substitui o comportamento temporário do T009); no `loop`, `'cooldown'` → `step` + `draw` normais e, quando `now >= cooldownEnd`, `didactic = 'waiting'`; desligar ou `restart()` durante o intervalo descartam o intervalo (data-model)
+- [X] T013 [US2] Em `src/main.js` (painel): em `'cooldown'`, estatísticas normais + "Modo didático: próxima pausa em N s" (`N = Math.ceil((cooldownEnd − now) / 1000)`)
+- [X] T014 [US2] Rodar `node --test`; validar cenários 7–10, 14 e 15 do quickstart; commit "Modo didático: intervalo de 5 s entre colisões"
 
 **Checkpoint**: Modo didático disparado por colisão completo
 

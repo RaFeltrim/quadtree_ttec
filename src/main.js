@@ -57,12 +57,15 @@ modeBtn.addEventListener('click', () => {
 //   'off'        desligado
 //   'waiting'    animação rodando, aguardando a próxima colisão
 //   'presenting' pausado, mostrando os passos da detecção
+//   'cooldown'   animação rodando por alguns segundos sem pausar, depois volta a 'waiting'
 const MAX_TRACE_PARTICLES = 200; // acima disso há passos demais para seguir à mão
+const COOLDOWN_MS = 5000; // intervalo entre uma apresentação e a próxima pausa possível
 const LIMIT_NOTICE = `Modo didático: reduza para até ${MAX_TRACE_PARTICLES} partículas`;
 let didactic = 'off';
 // Só em 'presenting': passos do frame, passo atual, par que disparou a pausa (fica verde),
 // todos os pares do frame (resolvidos ao encerrar) e o passo em que o par é testado.
 let trace = null; // { steps, index, pair, pairs, pairIndex }
+let cooldownEnd = 0; // só em 'cooldown': quando o intervalo termina (ms)
 
 // Um frame em 'waiting': move, detecta e só resolve se não houver colisão.
 function waitForCollision() {
@@ -84,11 +87,13 @@ function rebuildTrace() {
   trace.pairIndex = findPairStepIndex(trace.steps, trace.pair[0], trace.pair[1]);
 }
 
-// Encerra a apresentação: resolve as colisões do frame e volta a aguardar.
+// Encerra a apresentação: resolve as colisões do frame, retoma a animação e
+// começa o intervalo em que novas colisões não pausam.
 function endPresentation() {
   sim.resolve(trace.pairs);
   trace = null;
-  didactic = 'waiting';
+  didactic = 'cooldown';
+  cooldownEnd = performance.now() + COOLDOWN_MS;
 }
 
 function updateStepBtn() {
@@ -114,13 +119,16 @@ stepBtn.addEventListener('click', () => {
 //   → / ←             próximo / anterior passo (→ no último passo encerra)
 //   Shift + → / ←     próxima / anterior partícula
 //   Enter             vai direto ao teste da colisão que disparou a pausa
+//   Esc               encerra a apresentação na hora
 window.addEventListener('keydown', (e) => {
   if (didactic !== 'presenting') return;
-  if (!['ArrowRight', 'ArrowLeft', 'Enter'].includes(e.key)) return;
+  if (!['ArrowRight', 'ArrowLeft', 'Enter', 'Escape'].includes(e.key)) return;
   e.preventDefault(); // a tecla não deve mexer no controle em foco nem rolar a página
   const { steps } = trace;
 
-  if (e.key === 'Enter') {
+  if (e.key === 'Escape') {
+    endPresentation();
+  } else if (e.key === 'Enter') {
     trace.index = trace.pairIndex;
   } else if (e.key === 'ArrowRight') {
     let next = trace.index + 1;
@@ -213,7 +221,10 @@ function updateStats(now) {
     `Testes:     ${sim.tests}\n` +
     `Modo:       ${sim.mode === 'brute' ? 'força bruta' : 'Quadtree'}` +
     (sim.selection ? `\nEncontradas: ${sim.selectedCount}` : '') +
-    (didactic === 'waiting' ? '\nModo didático: aguardando colisão' : '');
+    (didactic === 'waiting' ? '\nModo didático: aguardando colisão' : '') +
+    (didactic === 'cooldown'
+      ? `\nModo didático: próxima pausa em ${Math.ceil((cooldownEnd - now) / 1000)} s`
+      : '');
 }
 
 function loop(now) {
@@ -221,6 +232,7 @@ function loop(now) {
   lastTime = now;
   if (elapsed > 0) fps = fps * 0.9 + (1000 / elapsed) * 0.1;
 
+  if (didactic === 'cooldown' && now >= cooldownEnd) didactic = 'waiting';
   if (didactic === 'waiting') waitForCollision(); // pode passar para 'presenting'
   else if (didactic !== 'presenting') sim.step();
 
