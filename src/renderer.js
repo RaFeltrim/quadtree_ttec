@@ -53,7 +53,7 @@ function drawTree(ctx, node) {
 
 const COLOR_DIM = 'rgba(136, 204, 255, 0.35)';
 const COLOR_FOCUS = '#fff';
-const COLOR_NO_HIT = '#4f4';
+const COLOR_NO_COLLISION = '#4f4';
 const COLOR_OLD_TEST = 'rgba(200, 200, 200, 0.25)';
 const COLOR_NODE_HIT = '#4f4';
 const COLOR_NODE_PRUNED = 'rgba(255, 90, 90, 0.8)';
@@ -118,7 +118,7 @@ function drawTrace(ctx, sim, steps, index, showGrid) {
     const s = steps[i];
     if (s.type !== 'test') continue;
     const isCurrent = i === index;
-    ctx.strokeStyle = isCurrent ? (s.overlap ? COLOR_COLLIDING : COLOR_NO_HIT) : COLOR_OLD_TEST;
+    ctx.strokeStyle = isCurrent ? (s.overlap ? COLOR_COLLIDING : COLOR_NO_COLLISION) : COLOR_OLD_TEST;
     ctx.lineWidth = isCurrent ? 2 : 1;
     ctx.beginPath();
     ctx.moveTo(s.p.x, s.p.y);

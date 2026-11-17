@@ -18,6 +18,23 @@ Controles:
 
 O painel mostra FPS, número de partículas, testes de colisão por frame e o modo atual.
 
+## Modo didático
+
+Mostra o algoritmo encontrando as colisões, uma iteração por vez. Liga com o botão
+**Modo didático** (até 200 partículas; com poucas, ~20, fica mais fácil acompanhar).
+A animação para no instante em que as colisões do frame vão ser procuradas.
+
+- **→ / ←**: próximo / anterior passo.
+- **Shift + → / ←**: próxima / anterior partícula.
+- **→ no último passo**: resolve as colisões, move as partículas um frame e recomeça.
+- **Botão de modo**: refaz os passos do mesmo frame com o outro algoritmo.
+
+Na tela: a partícula analisada tem um anel branco; em Quadtree, o quadrado tracejado é
+a região de busca, os nós verdes tocaram a região (a busca desce por eles) e os
+vermelhos foram descartados inteiros. Cada teste é uma linha entre as duas partículas:
+verde sem colisão, vermelha com colisão. Partículas de colisões já encontradas ficam
+vermelhas. No modo didático o mouse é ignorado.
+
 ## Como testar
 
 ```bash

@@ -103,8 +103,8 @@ verificados manualmente via [quickstart.md](./quickstart.md).
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 
-- [ ] T022 [P] Atualizar `README.md`: seção "Modo didático" (como ligar, limite de 200 partículas, teclas → ← e Shift, o que significam as cores)
-- [ ] T023 Revisar `src/*.js` alterados quanto a simplicidade e didática (sem código morto, comentários explicando as duas metades do frame, o registro do caminho e a intercalação dos testes)
+- [X] T022 [P] Atualizar `README.md`: seção "Modo didático" (como ligar, limite de 200 partículas, teclas → ← e Shift, o que significam as cores)
+- [X] T023 Revisar `src/*.js` alterados quanto a simplicidade e didática (sem código morto, comentários explicando as duas metades do frame, o registro do caminho e a intercalação dos testes)
 - [ ] T024 Executar todos os cenários de [quickstart.md](./quickstart.md); rodar `node --test`; commit "README do modo didático"
 
 ---
