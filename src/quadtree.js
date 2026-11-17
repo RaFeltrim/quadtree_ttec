@@ -73,14 +73,22 @@ class Quadtree {
 
   // Range query: devolve os itens cujo ponto está dentro de `range`.
   // Nós que não tocam o range são descartados inteiros: é isso que torna a busca rápida.
-  query(range, found = []) {
-    if (!this.boundary.intersects(range)) return found;
+  // Se `visited` for passado, registra o caminho para o modo didático: cada nó visitado,
+  // se ele tocou o range (`hit`) e os itens que achou nele (`found`). Sem ele, nada muda.
+  query(range, found = [], visited = null) {
+    const hit = this.boundary.intersects(range);
+    const record = visited ? { node: this, hit, found: [] } : null;
+    if (record) visited.push(record);
+    if (!hit) return found;
 
     for (const item of this.items) {
-      if (range.contains(item.x, item.y)) found.push(item);
+      if (range.contains(item.x, item.y)) {
+        found.push(item);
+        if (record) record.found.push(item);
+      }
     }
     if (this.children !== null) {
-      for (const child of this.children) child.query(range, found);
+      for (const child of this.children) child.query(range, found, visited);
     }
     return found;
   }

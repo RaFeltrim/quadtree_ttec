@@ -55,6 +55,8 @@ const COLOR_DIM = 'rgba(136, 204, 255, 0.35)';
 const COLOR_FOCUS = '#fff';
 const COLOR_NO_HIT = '#4f4';
 const COLOR_OLD_TEST = 'rgba(200, 200, 200, 0.25)';
+const COLOR_NODE_HIT = '#4f4';
+const COLOR_NODE_PRUNED = 'rgba(255, 90, 90, 0.8)';
 
 // Desenha o passo `index` do trace: o que o algoritmo está olhando agora
 // e o caminho percorrido até ali para a partícula atual.
@@ -89,6 +91,27 @@ function drawTrace(ctx, sim, steps, index, showGrid) {
   while (start > 0 && steps[start].type !== 'particle') start--;
   const current = steps[index];
   const p = steps[start].p;
+
+  // Região de busca (só Quadtree): o quadrado onde podem estar as vizinhas.
+  const range = steps[start].range;
+  if (range) {
+    ctx.strokeStyle = COLOR_FOCUS;
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    ctx.strokeRect(range.x, range.y, range.w, range.h);
+    ctx.setLineDash([]);
+  }
+
+  // Nós visitados até agora: verde = tocou a região (a busca desce),
+  // vermelho = descartado inteiro. O nó do passo atual fica mais grosso.
+  for (let i = start; i <= index; i++) {
+    const s = steps[i];
+    if (s.type !== 'visit') continue;
+    const b = s.node.boundary;
+    ctx.strokeStyle = s.hit ? COLOR_NODE_HIT : COLOR_NODE_PRUNED;
+    ctx.lineWidth = i === index ? 3 : 1;
+    ctx.strokeRect(b.x, b.y, b.w, b.h);
+  }
 
   // Testes já feitos por esta partícula (cinza) e o teste atual (verde = não colide, vermelho = colide).
   for (let i = start; i <= index; i++) {

@@ -62,3 +62,30 @@ test('query retorna exatamente os pontos dentro do range', () => {
   assert.equal(found.length, expected.length);
   for (const p of expected) assert.ok(found.includes(p));
 });
+
+test('query com visited registra o caminho sem mudar o resultado', () => {
+  const tree = new Quadtree(new Rect(0, 0, 1000, 1000));
+  for (let i = 0; i < 300; i++) tree.insert({ x: Math.random() * 1000, y: Math.random() * 1000 });
+  const range = new Rect(100, 100, 150, 150);
+
+  const visited = [];
+  const found = tree.query(range, [], visited);
+  assert.deepEqual(found, tree.query(range));
+  assert.equal(visited[0].node, tree);
+  assert.equal(visited[0].hit, true);
+
+  // Juntando o que cada nó achou, na ordem, temos exatamente o resultado da busca.
+  assert.deepEqual(visited.flatMap((v) => v.found), found);
+
+  // Nó descartado: não achou nada e nenhum descendente dele foi visitado.
+  const visitedNodes = new Set(visited.map((v) => v.node));
+  const hasVisitedDescendant = (node) =>
+    node.children !== null && node.children.some((c) => visitedNodes.has(c) || hasVisitedDescendant(c));
+  for (const v of visited) {
+    if (!v.hit) {
+      assert.equal(v.found.length, 0);
+      assert.equal(hasVisitedDescendant(v.node), false);
+    }
+  }
+  assert.ok(visited.some((v) => !v.hit), 'algum nó deve ter sido descartado');
+});

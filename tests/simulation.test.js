@@ -172,3 +172,29 @@ test('buildTrace em Quadtree: mesmos testes e pares da detecção normal', () =>
   const { particles, tree } = randomScene(300, 8, 800, 600);
   assertTraceMatches(buildTrace(particles, tree, 'quadtree'), findPairsQuadtree(particles, tree));
 });
+
+test('buildTrace em Quadtree mostra o caminho com os testes intercalados', () => {
+  const { particles, tree } = randomScene(300, 8, 800, 600);
+  const steps = buildTrace(particles, tree, 'quadtree');
+  assertTraceMatches(steps, findPairsQuadtree(particles, tree));
+
+  const particleSteps = steps.filter((s) => s.type === 'particle');
+  assert.equal(particleSteps.length, 300);
+  for (const s of particleSteps) {
+    assert.equal(s.range.w, 4 * s.p.r);
+    assert.equal(s.range.x + s.range.w / 2, s.p.x);
+    assert.equal(s.range.y + s.range.h / 2, s.p.y);
+  }
+  assert.ok(steps.some((s) => s.type === 'visit' && s.hit));
+
+  // Cada teste vem logo depois da visita ao nó que contém a candidata.
+  let lastVisit = null;
+  for (const s of steps) {
+    if (s.type === 'particle') lastVisit = null;
+    if (s.type === 'visit') lastVisit = s;
+    if (s.type === 'test') {
+      assert.ok(lastVisit && lastVisit.p === s.p && lastVisit.hit, 'teste sem visita antes');
+      assert.ok(lastVisit.node.items.includes(s.q), 'candidata não está no nó visitado');
+    }
+  }
+});

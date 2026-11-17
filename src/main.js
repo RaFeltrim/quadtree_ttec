@@ -93,6 +93,11 @@ function describeStep(s) {
       ? `Partícula #${s.p.id}: comparar com todas as de id maior`
       : `Partícula #${s.p.id}: buscar vizinhas na região tracejada`;
   }
+  if (s.type === 'visit') {
+    return s.hit
+      ? `Nó nível ${s.node.depth} toca a região → examina e desce`
+      : `Nó nível ${s.node.depth} fora da região → descartado`;
+  }
   const dist = Math.hypot(s.q.x - s.p.x, s.q.y - s.p.y);
   const minDist = s.p.r + s.q.r;
   return s.overlap
