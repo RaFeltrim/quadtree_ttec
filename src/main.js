@@ -19,8 +19,17 @@ function resizeCanvas() {
 }
 
 // Mudar quantidade, raio ou tamanho da janela sempre recomeça a simulação.
+// Com o modo didático ligado, o novo frame já começa pausado (se couber no limite).
 function restart() {
   sim.reset(Number(countInput.value), Number(radiusSelect.value), canvas.width, canvas.height);
+  if (sim.particles.length <= MAX_TRACE_PARTICLES) {
+    notice.textContent = '';
+    if (trace) startTraceFrame();
+  } else if (trace) {
+    trace = null;
+    updateStepBtn();
+    notice.textContent = LIMIT_NOTICE;
+  }
 }
 
 window.addEventListener('resize', () => {
@@ -39,6 +48,7 @@ countInput.addEventListener('change', restart);
 modeBtn.addEventListener('click', () => {
   sim.mode = sim.mode === 'brute' ? 'quadtree' : 'brute';
   modeBtn.textContent = sim.mode === 'brute' ? 'Modo: força bruta' : 'Modo: Quadtree';
+  if (trace) rebuildTrace(); // mesmo frame, refeito com o outro algoritmo
 });
 
 // Modo didático: a simulação para entre "mover + montar árvore" e "detectar + resolver",
@@ -55,6 +65,12 @@ function rebuildTrace() {
 function startTraceFrame() {
   sim.moveAndBuildTree();
   rebuildTrace();
+}
+
+// Termina o frame pausado (resolve as colisões encontradas) e começa o próximo.
+function nextTraceFrame() {
+  sim.detectAndResolve();
+  startTraceFrame();
 }
 
 function updateStepBtn() {
@@ -75,14 +91,26 @@ stepBtn.addEventListener('click', () => {
   stepBtn.blur();
 });
 
-// → / ← : próximo / anterior passo.
+// → / ← : próximo / anterior passo.  Shift + → / ← : próxima / anterior partícula.
+// Passar do último passo encerra o frame e começa o seguinte.
 window.addEventListener('keydown', (e) => {
   if (!trace || (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft')) return;
   e.preventDefault(); // a seta não deve mexer no slider em foco nem rolar a página
+  const { steps } = trace;
+
   if (e.key === 'ArrowRight') {
-    trace.index = Math.min(trace.index + 1, trace.steps.length - 1);
+    let next = trace.index + 1;
+    if (e.shiftKey) {
+      while (next < steps.length && steps[next].type !== 'particle') next++;
+    }
+    if (next >= steps.length) nextTraceFrame();
+    else trace.index = next;
   } else {
-    trace.index = Math.max(trace.index - 1, 0);
+    let prev = Math.max(trace.index - 1, 0);
+    if (e.shiftKey) {
+      while (prev > 0 && steps[prev].type !== 'particle') prev--;
+    }
+    trace.index = prev;
   }
 });
 
@@ -126,6 +154,7 @@ function rectFromPoints(x1, y1, x2, y2) {
 }
 
 canvas.addEventListener('mousedown', (e) => {
+  if (trace) return; // no modo didático o mouse é ignorado
   dragStart = { x: e.offsetX, y: e.offsetY };
 });
 

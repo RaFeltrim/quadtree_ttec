@@ -92,10 +92,10 @@ verificados manualmente via [quickstart.md](./quickstart.md).
 
 **Independent Test**: Cenários 6, 8, 9 e 12 do quickstart.
 
-- [ ] T019 [US3] Em `src/main.js` (listener `keydown`): Shift + → avança até o próximo passo `'particle'`; Shift + ← faz `index − 1` e volta até o passo `'particle'` anterior (mínimo 0); → ou Shift + → além do último passo chama `nextTraceFrame()` = `sim.detectAndResolve()` + `startTraceFrame()`
-- [ ] T020 [US3] Em `src/main.js`: no clique de `#modeBtn` (troca do modo de detecção), se `trace` ligado, chamar `rebuildTrace()` (mesmo frame, outro algoritmo); em `restart()`, depois do `reset`: com até `MAX_TRACE_PARTICLES` partículas, limpar `#notice` e, se `trace` ligado, chamar `startTraceFrame()`; acima disso, se `trace` ligado, `trace = null`, rótulo do botão "Modo didático: desligado" e o aviso em `#notice`
-- [ ] T020a [US3] Em `src/main.js`: no handler de `mousedown` do canvas, sair sem fazer nada se `trace` estiver ligado (o mouse é ignorado no modo didático; arrastar não cria nem altera a seleção)
-- [ ] T021 [US3] Validar cenários 6, 8, 9, 12, 13 e 14 do quickstart; commit "Modo didático: navegação entre partículas e frames"
+- [X] T019 [US3] Em `src/main.js` (listener `keydown`): Shift + → avança até o próximo passo `'particle'`; Shift + ← faz `index − 1` e volta até o passo `'particle'` anterior (mínimo 0); → ou Shift + → além do último passo chama `nextTraceFrame()` = `sim.detectAndResolve()` + `startTraceFrame()`
+- [X] T020 [US3] Em `src/main.js`: no clique de `#modeBtn` (troca do modo de detecção), se `trace` ligado, chamar `rebuildTrace()` (mesmo frame, outro algoritmo); em `restart()`, depois do `reset`: com até `MAX_TRACE_PARTICLES` partículas, limpar `#notice` e, se `trace` ligado, chamar `startTraceFrame()`; acima disso, se `trace` ligado, `trace = null`, rótulo do botão "Modo didático: desligado" e o aviso em `#notice`
+- [X] T020a [US3] Em `src/main.js`: no handler de `mousedown` do canvas, sair sem fazer nada se `trace` estiver ligado (o mouse é ignorado no modo didático; arrastar não cria nem altera a seleção)
+- [X] T021 [US3] Validar cenários 6, 8, 9, 12, 13 e 14 do quickstart; commit "Modo didático: navegação entre partículas e frames"
 
 **Checkpoint**: Modo didático completo
 
