@@ -86,8 +86,8 @@ Princípio IV da constituição. `renderer.js` e `main.js` são verificados manu
 
 ## Phase 5: Polish & Cross-Cutting Concerns
 
-- [ ] T015 [P] Atualizar a seção "Modo didático" do `README.md`: aguarda colisão, par em verde, Enter, Esc, intervalo de 5 s, novas cores (amarelo, ciano, cinza)
-- [ ] T016 Revisar `src/*.js` alterados (sem código morto da feature 002, comentários explicando os estados e a separação detect/resolve)
+- [X] T015 [P] Atualizar a seção "Modo didático" do `README.md`: aguarda colisão, par em verde, Enter, Esc, intervalo de 5 s, novas cores (amarelo, ciano, cinza)
+- [X] T016 Revisar `src/*.js` alterados (sem código morto da feature 002, comentários explicando os estados e a separação detect/resolve)
 - [ ] T017 Executar todos os cenários de [quickstart.md](./quickstart.md); rodar `node --test`; commit "README do modo didático disparado por colisão"
 - [ ] T018 Fazer merge local da branch na `main` (`git checkout main && git merge --ff-only 003-collision-triggered-didactic`); **não** fazer push — avisar o usuário que a `main` está pronta para ele enviar
 

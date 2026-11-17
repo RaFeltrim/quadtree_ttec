@@ -20,20 +20,27 @@ O painel mostra FPS, número de partículas, testes de colisão por frame e o mo
 
 ## Modo didático
 
-Mostra o algoritmo encontrando as colisões, uma iteração por vez. Liga com o botão
+Mostra o algoritmo encontrando uma colisão, uma iteração por vez. Liga com o botão
 **Modo didático** (até 200 partículas; com poucas, ~20, fica mais fácil acompanhar).
-A animação para no instante em que as colisões do frame vão ser procuradas.
+
+A animação continua rodando até duas partículas colidirem. Aí ela pausa, antes do
+ricochete, e mostra a detecção daquele frame desde o primeiro passo. As duas partículas
+que colidiram ficam **verdes** durante toda a apresentação.
 
 - **→ / ←**: próximo / anterior passo.
 - **Shift + → / ←**: próxima / anterior partícula.
-- **→ no último passo**: resolve as colisões, move as partículas um frame e recomeça.
+- **Enter**: vai direto ao teste da colisão que disparou a pausa.
+- **Esc** (ou → no último passo): encerra, resolve as colisões e retoma a animação.
 - **Botão de modo**: refaz os passos do mesmo frame com o outro algoritmo.
 
+Depois de encerrar, por 5 segundos as colisões não pausam (o painel mostra a contagem);
+depois disso, a próxima colisão pausa de novo.
+
 Na tela: a partícula analisada tem um anel branco; em Quadtree, o quadrado tracejado é
-a região de busca, os nós verdes tocaram a região (a busca desce por eles) e os
+a região de busca, os nós em ciano tocaram a região (a busca desce por eles) e os
 vermelhos foram descartados inteiros. Cada teste é uma linha entre as duas partículas:
-verde sem colisão, vermelha com colisão. Partículas de colisões já encontradas ficam
-vermelhas. No modo didático o mouse é ignorado.
+amarela sem colisão, vermelha com colisão. Outras colisões encontradas no frame ficam
+vermelhas. Durante a apresentação o mouse é ignorado.
 
 ## Como testar
 
