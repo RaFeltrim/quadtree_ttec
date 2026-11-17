@@ -19,14 +19,15 @@ function resizeCanvas() {
 }
 
 // Mudar quantidade, raio ou tamanho da janela sempre recomeça a simulação.
-// Com o modo didático ligado, o novo frame já começa pausado (se couber no limite).
+// Com o modo didático ligado, ele volta a aguardar uma colisão (se couber no limite).
 function restart() {
   sim.reset(Number(countInput.value), Number(radiusSelect.value), canvas.width, canvas.height);
+  trace = null;
   if (sim.particles.length <= MAX_TRACE_PARTICLES) {
     notice.textContent = '';
-    if (trace) startTraceFrame();
-  } else if (trace) {
-    trace = null;
+    if (didactic !== 'off') didactic = 'waiting';
+  } else if (didactic !== 'off') {
+    didactic = 'off';
     updateStepBtn();
     notice.textContent = LIMIT_NOTICE;
   }
@@ -48,62 +49,85 @@ countInput.addEventListener('change', restart);
 modeBtn.addEventListener('click', () => {
   sim.mode = sim.mode === 'brute' ? 'quadtree' : 'brute';
   modeBtn.textContent = sim.mode === 'brute' ? 'Modo: força bruta' : 'Modo: Quadtree';
-  if (trace) rebuildTrace(); // mesmo frame, refeito com o outro algoritmo
+  if (didactic === 'presenting') rebuildTrace(); // mesmo frame e mesmo par, outro algoritmo
 });
 
-// Modo didático: a simulação para entre "mover + montar árvore" e "detectar + resolver",
-// e o usuário percorre a detecção passo a passo com as setas.
+// Modo didático: a animação roda até a detecção encontrar uma colisão. Aí pausa antes
+// do ricochete e o usuário percorre, passo a passo, a detecção daquele frame.
+//   'off'        desligado
+//   'waiting'    animação rodando, aguardando a próxima colisão
+//   'presenting' pausado, mostrando os passos da detecção
 const MAX_TRACE_PARTICLES = 200; // acima disso há passos demais para seguir à mão
 const LIMIT_NOTICE = `Modo didático: reduza para até ${MAX_TRACE_PARTICLES} partículas`;
-let trace = null; // null = desligado; senão { steps, index }
+let didactic = 'off';
+// Só em 'presenting': passos do frame, passo atual, par que disparou a pausa (fica verde),
+// todos os pares do frame (resolvidos ao encerrar) e o passo em que o par é testado.
+let trace = null; // { steps, index, pair, pairs, pairIndex }
 
-function rebuildTrace() {
-  trace = { steps: buildTrace(sim.particles, sim.tree, sim.mode), index: 0 };
-}
-
-// Começa um frame: move as partículas, monta a árvore e para antes de detectar.
-function startTraceFrame() {
+// Um frame em 'waiting': move, detecta e só resolve se não houver colisão.
+function waitForCollision() {
   sim.moveAndBuildTree();
+  const { pairs } = sim.detect();
+  if (pairs.length === 0) {
+    sim.resolve(pairs);
+    return;
+  }
+  trace = { pairs, pair: pairs[0] }; // apresenta a primeira colisão encontrada
   rebuildTrace();
+  didactic = 'presenting';
 }
 
-// Termina o frame pausado (resolve as colisões encontradas) e começa o próximo.
-function nextTraceFrame() {
-  sim.detectAndResolve();
-  startTraceFrame();
+// (Re)gera os passos do frame pausado com o modo de detecção atual, mantendo o par.
+function rebuildTrace() {
+  trace.steps = buildTrace(sim.particles, sim.tree, sim.mode);
+  trace.index = 0;
+  trace.pairIndex = findPairStepIndex(trace.steps, trace.pair[0], trace.pair[1]);
+}
+
+// Encerra a apresentação: resolve as colisões do frame e volta a aguardar.
+function endPresentation() {
+  sim.resolve(trace.pairs);
+  trace = null;
+  didactic = 'waiting';
 }
 
 function updateStepBtn() {
-  stepBtn.textContent = trace ? 'Modo didático: ligado' : 'Modo didático: desligado';
+  stepBtn.textContent = didactic !== 'off' ? 'Modo didático: ligado' : 'Modo didático: desligado';
 }
 
 stepBtn.addEventListener('click', () => {
-  if (trace) {
-    sim.detectAndResolve(); // conclui o frame que estava pausado
+  if (didactic !== 'off') {
+    if (didactic === 'presenting') sim.resolve(trace.pairs); // conclui o frame pausado
     trace = null;
+    didactic = 'off';
   } else if (sim.particles.length > MAX_TRACE_PARTICLES) {
     notice.textContent = LIMIT_NOTICE;
   } else {
-    startTraceFrame();
+    didactic = 'waiting';
     notice.textContent = '';
   }
   updateStepBtn();
   stepBtn.blur();
 });
 
-// → / ← : próximo / anterior passo.  Shift + → / ← : próxima / anterior partícula.
-// Passar do último passo encerra o frame e começa o seguinte.
+// Teclas da apresentação:
+//   → / ←             próximo / anterior passo (→ no último passo encerra)
+//   Shift + → / ←     próxima / anterior partícula
+//   Enter             vai direto ao teste da colisão que disparou a pausa
 window.addEventListener('keydown', (e) => {
-  if (!trace || (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft')) return;
-  e.preventDefault(); // a seta não deve mexer no slider em foco nem rolar a página
+  if (didactic !== 'presenting') return;
+  if (!['ArrowRight', 'ArrowLeft', 'Enter'].includes(e.key)) return;
+  e.preventDefault(); // a tecla não deve mexer no controle em foco nem rolar a página
   const { steps } = trace;
 
-  if (e.key === 'ArrowRight') {
+  if (e.key === 'Enter') {
+    trace.index = trace.pairIndex;
+  } else if (e.key === 'ArrowRight') {
     let next = trace.index + 1;
     if (e.shiftKey) {
       while (next < steps.length && steps[next].type !== 'particle') next++;
     }
-    if (next >= steps.length) nextTraceFrame();
+    if (next >= steps.length) endPresentation();
     else trace.index = next;
   } else {
     let prev = Math.max(trace.index - 1, 0);
@@ -135,13 +159,16 @@ function describeStep(s) {
 
 function updateTraceStats() {
   const s = trace.steps[trace.index];
+  const [a, b] = trace.pair;
+  const marker = trace.index === trace.pairIndex ? '  ← colisão que disparou a pausa' : '';
   stats.textContent =
     `MODO DIDÁTICO (${sim.mode === 'brute' ? 'força bruta' : 'Quadtree'})\n` +
+    `Colisão apresentada: #${a.id} × #${b.id}\n` +
     `Passo ${trace.index + 1} / ${trace.steps.length}\n` +
-    `${describeStep(s)}\n` +
+    `${describeStep(s)}${marker}\n` +
     `Testes até aqui:   ${s.tests}\n` +
     `Colisões até aqui: ${s.collisions}\n` +
-    `→ ← passo   Shift+→ ← partícula`;
+    `→ ← passo · Shift partícula · Enter colisão · Esc continuar`;
 }
 
 // Seleção com o mouse: arrastar desenha um retângulo e atualiza a range query na hora.
@@ -154,7 +181,7 @@ function rectFromPoints(x1, y1, x2, y2) {
 }
 
 canvas.addEventListener('mousedown', (e) => {
-  if (trace) return; // no modo didático o mouse é ignorado
+  if (didactic === 'presenting') return; // durante a apresentação o mouse é ignorado
   dragStart = { x: e.offsetX, y: e.offsetY };
 });
 
@@ -185,7 +212,8 @@ function updateStats(now) {
     `Partículas: ${sim.particles.length}\n` +
     `Testes:     ${sim.tests}\n` +
     `Modo:       ${sim.mode === 'brute' ? 'força bruta' : 'Quadtree'}` +
-    (sim.selection ? `\nEncontradas: ${sim.selectedCount}` : '');
+    (sim.selection ? `\nEncontradas: ${sim.selectedCount}` : '') +
+    (didactic === 'waiting' ? '\nModo didático: aguardando colisão' : '');
 }
 
 function loop(now) {
@@ -193,11 +221,13 @@ function loop(now) {
   lastTime = now;
   if (elapsed > 0) fps = fps * 0.9 + (1000 / elapsed) * 0.1;
 
-  if (trace) {
-    drawTrace(ctx, sim, trace.steps, trace.index, showGridInput.checked);
+  if (didactic === 'waiting') waitForCollision(); // pode passar para 'presenting'
+  else if (didactic !== 'presenting') sim.step();
+
+  if (didactic === 'presenting') {
+    drawTrace(ctx, sim, trace.steps, trace.index, showGridInput.checked, trace.pair);
     updateTraceStats();
   } else {
-    sim.step();
     draw(ctx, sim, showGridInput.checked, dragRect);
     updateStats(now);
   }

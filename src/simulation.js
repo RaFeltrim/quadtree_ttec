@@ -176,4 +176,11 @@ function buildTrace(particles, tree, mode) {
   return steps;
 }
 
-if (typeof module !== 'undefined') module.exports = { Simulation, findPairsBruteForce, findPairsQuadtree, buildTrace };
+// Índice do passo em que o par (a, b) é testado, em qualquer ordem; -1 se não foi testado.
+// O modo didático usa para pular direto à colisão que disparou a pausa (tecla Enter).
+function findPairStepIndex(steps, a, b) {
+  return steps.findIndex((s) =>
+    s.type === 'test' && ((s.p === a && s.q === b) || (s.p === b && s.q === a)));
+}
+
+if (typeof module !== 'undefined') module.exports = { Simulation, findPairsBruteForce, findPairsQuadtree, buildTrace, findPairStepIndex };

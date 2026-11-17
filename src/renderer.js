@@ -53,14 +53,18 @@ function drawTree(ctx, node) {
 
 const COLOR_DIM = 'rgba(136, 204, 255, 0.35)';
 const COLOR_FOCUS = '#fff';
-const COLOR_NO_COLLISION = '#4f4';
+// O verde vivo é só do par que disparou a pausa; o resto usa outras cores
+// (a grade completa continua no verde suave COLOR_GRID).
+const COLOR_PRESENTED = '#4f4';
+const COLOR_NO_COLLISION = '#fd3';
 const COLOR_OLD_TEST = 'rgba(200, 200, 200, 0.25)';
-const COLOR_NODE_HIT = '#4f4';
+const COLOR_NODE_HIT = '#4cf';
 const COLOR_NODE_PRUNED = 'rgba(255, 90, 90, 0.8)';
 
 // Desenha o passo `index` do trace: o que o algoritmo está olhando agora
 // e o caminho percorrido até ali para a partícula atual.
-function drawTrace(ctx, sim, steps, index, showGrid) {
+// `pair` ([a, b] ou null) é a colisão que disparou a pausa: fica verde o tempo todo.
+function drawTrace(ctx, sim, steps, index, showGrid, pair) {
   ctx.fillStyle = COLOR_BACKGROUND;
   ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
@@ -70,7 +74,8 @@ function drawTrace(ctx, sim, steps, index, showGrid) {
     drawTree(ctx, sim.tree);
   }
 
-  // Partículas de colisões já encontradas até este passo ficam vermelhas; o resto, apagado.
+  // O par apresentado fica verde; colisões já encontradas até este passo, vermelhas;
+  // o resto, apagado.
   const found = new Set();
   for (let i = 0; i <= index; i++) {
     const s = steps[i];
@@ -80,7 +85,8 @@ function drawTrace(ctx, sim, steps, index, showGrid) {
     }
   }
   for (const p of sim.particles) {
-    ctx.fillStyle = found.has(p) ? COLOR_COLLIDING : COLOR_DIM;
+    if (pair && (p === pair[0] || p === pair[1])) ctx.fillStyle = COLOR_PRESENTED;
+    else ctx.fillStyle = found.has(p) ? COLOR_COLLIDING : COLOR_DIM;
     ctx.beginPath();
     ctx.arc(p.x, p.y, p.r, 0, 2 * Math.PI);
     ctx.fill();

@@ -2,7 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { Particle } = require('../src/particle.js');
 const { Rect, Quadtree } = require('../src/quadtree.js');
-const { Simulation, findPairsBruteForce, findPairsQuadtree, buildTrace } = require('../src/simulation.js');
+const { Simulation, findPairsBruteForce, findPairsQuadtree, buildTrace, findPairStepIndex } = require('../src/simulation.js');
 
 // Cria `count` partículas aleatórias e uma Quadtree com elas.
 function randomScene(count, radius, width, height) {
@@ -236,4 +236,33 @@ test('detectAndResolve equivale a resolve(detect().pairs)', () => {
   const state = (sim) => sim.particles.map((p) => [p.x, p.y, p.vx, p.vy, p.colliding]);
   assert.deepEqual(state(a), state(b));
   assert.equal(a.particles[0].colliding, true);
+});
+
+test('a colisão apresentada é a primeira colisão do trace, e findPairStepIndex a encontra', () => {
+  const sim = new Simulation(800, 600);
+  sim.reset(300, 8, 800, 600);
+  sim.moveAndBuildTree();
+  for (const mode of ['brute', 'quadtree']) {
+    sim.mode = mode;
+    const { pairs } = sim.detect();
+    assert.ok(pairs.length > 0, 'cenário precisa ter colisão');
+    const [a, b] = pairs[0];
+    const steps = buildTrace(sim.particles, sim.tree, mode);
+
+    const firstHit = steps.findIndex((s) => s.type === 'test' && s.overlap);
+    assert.equal(pairKey([steps[firstHit].p, steps[firstHit].q]), pairKey([a, b]), mode);
+    assert.equal(findPairStepIndex(steps, a, b), firstHit, mode);
+    assert.equal(findPairStepIndex(steps, b, a), firstHit, mode);
+  }
+});
+
+test('findPairStepIndex devolve -1 para um par que não foi testado', () => {
+  const particles = [
+    new Particle(0, 50, 50, 0, 0, 8),
+    new Particle(1, 750, 550, 0, 0, 8),
+  ];
+  const tree = new Quadtree(new Rect(0, 0, 800, 600));
+  for (const p of particles) tree.insert(p);
+  const steps = buildTrace(particles, tree, 'quadtree');
+  assert.equal(findPairStepIndex(steps, particles[0], particles[1]), -1);
 });
