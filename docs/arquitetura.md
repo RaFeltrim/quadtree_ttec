@@ -21,7 +21,7 @@ flowchart LR
 | [`src/quadtree.js`](../src/quadtree.js) | Árvore espacial quaternária com limites de capacidade e profundidade | `Rect`, `Quadtree` (`capacity = 4`, `maxDepth = 8`) |
 | [`src/simulation.js`](../src/simulation.js) | Ciclo do frame, detecção, seleção por região e geração de trace | `Simulation`, `findPairsBruteForce()`, `findPairsQuadtree()`, `buildTrace()` |
 | [`src/renderer.js`](../src/renderer.js) | Desenho das partículas, grade da Quadtree, seleção e trace no Canvas 2D | `draw()`, `drawTree()`, `drawTrace()` |
-| [`src/main.js`](../src/main.js) | Eventos de DOM, mouse, teclado, `requestAnimationFrame` e controle didático | `loop()`, `restart()`, `rebuildTrace()` |
+| [`src/main.js`](../src/main.js) | Eventos de DOM (slider + campo numérico `#countValue`), mouse, teclado, `requestAnimationFrame` e controle didático | `loop()`, `restart()`, `applyCountNumber()`, `rebuildTrace()` |
 
 ---
 

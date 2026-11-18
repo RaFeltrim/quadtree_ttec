@@ -43,7 +43,7 @@ node --test
 
 ### Controles
 
-- **Partículas (`10–2000`)**: define a quantidade de partículas; ao soltar o slider a simulação recomeça.
+- **Partículas (`10–2000`)**: ajuste pelo *slider* (reinicia ao soltar) ou diretamente pelo campo numérico ao lado (`Enter` ou sair do campo aplica o valor entre `10` e `2000` e reinicia).
 - **Raio (`2, 4, 8, 16, 32 px`)**: altera o tamanho das partículas e reinicia a simulação.
 - **Modo (`Força bruta` / `Quadtree`)**: alterna o algoritmo de detecção sem reiniciar as posições.
 - **Mostrar grade**: desenha as subdivisões recursivas da Quadtree no canvas.
