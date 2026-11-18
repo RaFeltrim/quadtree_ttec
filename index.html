@@ -11,13 +11,13 @@
 
   <aside id="panel" role="region" aria-label="Controles da simulação">
     <div class="control-group">
-      <label class="field-range" for="count">
-        <span class="field-header">
-          <span>Partículas</span>
-          <output id="countValue" for="count">200</output>
-        </span>
+      <div class="field-range">
+        <div class="field-header">
+          <label for="count">Partículas</label>
+          <input id="countValue" type="number" min="10" max="2000" value="200" aria-label="Quantidade numérica de partículas">
+        </div>
         <input id="count" type="range" min="10" max="2000" value="200" aria-label="Quantidade de partículas">
-      </label>
+      </div>
 
       <label class="field-inline" for="radius">
         <span>Raio (px)</span>
