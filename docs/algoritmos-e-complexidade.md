@@ -1,39 +1,29 @@
-# ⚡ Algoritmos e Análise de Complexidade
+# Algoritmos e Complexidade
 
-Este documento detalha o comparativo teórico e experimental entre a abordagem ingênua (**Força Bruta**) e a abordagem espacial hierárquica (**Quadtree**) implementadas em [`src/simulation.js`](../src/simulation.js) e [`src/quadtree.js`](../src/quadtree.js).
-
----
-
-## 📊 Comparativo Assintótico
-
-| Estratégia | Construção / Frame | Consulta / Detecção | Complexidade Total por Frame | Uso Ideal |
-| :--- | :---: | :---: | :---: | :--- |
-| **Força Bruta** (`findPairsBruteForce`) | — | $\frac{N(N-1)}{2}$ pares | **$\mathcal{O}(N^2)$** | $N$ muito pequeno ($N \le 30$) |
-| **Quadtree** (`findPairsQuadtree`) | $\mathcal{O}(N \log N)$ | $\mathcal{O}(N \log N)$ | **$\mathcal{O}(N \log N)$** | $N$ médio a grande (centenas/milhares) |
-
-> **Critério de Eficiência Validado (`SC-002`):** Nos testes automatizados (`tests/simulation.test.js`), com **$N = 1.000$ partículas**, a Quadtree realiza **no máximo $1/10$ dos testes de colisão** em comparação à força bruta (redução $> 90\%$ de pares verificados).
+Comparativo entre a detecção por **Força Bruta** (`findPairsBruteForce`) e por **Quadtree** (`findPairsQuadtree`) implementadas em [`src/simulation.js`](../src/simulation.js) e [`src/quadtree.js`](../src/quadtree.js).
 
 ---
 
-## 🌳 Como Funciona a Quadtree (`src/quadtree.js`)
+## Complexidade por frame
 
-1. **Subdivisão Espacial (`Rect`):**
-   * Cada nó cobre um retângulo alinhado aos eixos `(x, y, w, h)`.
-   * O método `contains(px, py)` usa borda esquerda/superior inclusiva (`>=`) e direita/inferior exclusiva (`<`), garantindo que nenhum ponto na divisa pertença a dois quadrantes simultaneamente.
-2. **Capacidade e Profundidade Máxima:**
-   * `capacity = 4`: enquanto o nó folha possui menos de 4 itens, armazena diretamente em `this.items`.
-   * Ao exceder a capacidade, `subdivide()` cria 4 quadrantes filhos (`NE`, `NW`, `SE`, `SW`) e redistribui os itens.
-   * `maxDepth = 8`: impede recursão infinita caso várias partículas ocupem exatamente a mesma coordenada.
-3. **Range Query & Rastreamento (`visited`):**
-   * Para cada partícula $p$ de raio $r$, consulta-se o retângulo de busca centrado em $(p.x, p.y)$ com lado suficiente para capturar potenciais vizinhos (`2 * (r + maxRadius)`).
-   * Nós cujo `boundary` não intersecta a região de busca (`!this.boundary.intersects(range)`) são **descartados inteiros** (poda espacial).
-   * Quando `visited` é fornecido (no modo didático e testes), o algoritmo registra cada nó visitado e seu estado (`entered` vs. `pruned`) sem alterar o resultado final.
+| Algoritmo | Pares testados / Custo | Complexidade de tempo | Espaço auxiliar |
+| :--- | :---: | :---: | :---: |
+| **Força bruta** | $\frac{N(N - 1)}{2}$ pares | $O(N^2)$ | $O(1)$ |
+| **Quadtree** | Inserção + *range query* local | $O(N \log N)$ médio | $O(N)$ |
+
+Nos testes unitários (`tests/simulation.test.js`), o critério **SC-002** verifica que, com **$N = 1.000$ partículas**, a Quadtree executa no máximo **$1/10$** dos testes de colisão realizados pela força bruta.
 
 ---
 
-## 🔍 Modo Didático e `buildTrace()`
+## Subdivisão espacial e poda (`src/quadtree.js`)
 
-A função `buildTrace(particles, mode, width, height, maxRadius)` em `src/simulation.js` reproduz exatamente a mesma sequência de testes e pares da detecção normal, gerando um vetor `steps` estruturado:
+1. **Partição por `Rect`:** `contains(px, py)` considera inclusivas as bordas esquerda e superior (`>=`) e exclusivas as bordas direita e inferior (`<`), evitando ambiguidade quando um ponto cai exatamente na divisa entre quadrantes.
+2. **Subdivisão sob demanda:** cada nó folha armazena até `capacity = 4` itens. Ao ultrapassar o limite (e enquanto `depth < maxDepth`, com `maxDepth = 8`), `subdivide()` cria quatro filhos (`NE`, `NW`, `SE`, `SW`) e redistribui os pontos.
+3. **Consulta de vizinhança (`query`):** para cada partícula, busca-se apenas dentro do retângulo de alcance centrado na partícula. Quadrantes que não intersectam esse retângulo (`!this.boundary.intersects(range)`) são podados imediatamente sem percorrer seus filhos.
+4. **Rastreamento didático (`visited`):** quando o parâmetro opcional `visited` é passado, `query()` registra cada nó avaliado e se houve entrada ou poda, permitindo a visualização no canvas sem alterar o conjunto de candidatos retornado.
 
-* **Em Força Bruta:** Cada passo corresponde à inspeção de uma partícula $i$ contra $j > i$, registrando as linhas de teste (amarela = sem colisão, vermelha = colisão).
-* **Em Quadtree:** Além dos testes de pares candidatos, cada passo intercala os nós da árvore visitados (ciano = região intersectada; vermelho = subárvore podada/descartada inteira).
+---
+
+## Geração de trace (`buildTrace`)
+
+A função `buildTrace()` em `src/simulation.js` reproduz a mesma detecção de pares de `findPairsBruteForce()` e `findPairsQuadtree()`, registrando cada passo em `steps` para que o modo didático consiga avançar, retroceder e alternar entre os dois algoritmos no mesmo frame pausado.

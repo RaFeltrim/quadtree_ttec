@@ -1,24 +1,22 @@
-# 📚 Documentação Técnica — Quadtree: Colisão de Partículas
+# Documentação Técnica — Quadtree: Colisão de Partículas
 
-Bem-vindo à central de documentação técnica do projeto **Quadtree: Colisão de Partículas**. Esta pasta consolida a arquitetura em módulos, a análise algorítmica e os artefatos de mapeamento estrutural gerados via `/graphify`.
+Índice dos documentos de arquitetura, complexidade algorítmica e mapeamento estrutural do projeto.
 
 ---
 
-## 🗂️ Índice de Documentos
+## Documentos
 
-| Documento | Descrição |
+| Arquivo | Conteúdo |
 | :--- | :--- |
-| **[`arquitetura.md`](./arquitetura.md)** | Arquitetura em 5 módulos planos, contratos de dados, máquina de estados do modo didático e diagramas Mermaid |
-| **[`algoritmos-e-complexidade.md`](./algoritmos-e-complexidade.md)** | Comparativo assintótico: Força Bruta $\mathcal{O}(N^2)$ vs. Quadtree $\mathcal{O}(N \log N)$, subdivisão espacial e *range query* |
-| **[`GRAPH_REPORT.md`](../graphify-out/GRAPH_REPORT.md)** | Relatório completo do grafo de conhecimento gerado pelo `/graphify` (294 nós, 417 arestas, 25 comunidades) |
-| **[`graph.html`](../graphify-out/graph.html)** | Visualização interativa do grafo de dependências e especificações |
+| [`arquitetura.md`](./arquitetura.md) | Separação em 5 módulos planos, contratos entre camadas e máquina de estados do modo didático |
+| [`algoritmos-e-complexidade.md`](./algoritmos-e-complexidade.md) | Comparação entre força bruta ($O(N^2)$) e Quadtree ($O(N \log N)$), subdivisão espacial e `buildTrace()` |
+| [`../graphify-out/GRAPH_REPORT.md`](../graphify-out/GRAPH_REPORT.md) | Relatório de dependências, comunidades e nós centrais gerado pelo `/graphify` (294 nós, 417 arestas) |
+| [`../graphify-out/graph.html`](../graphify-out/graph.html) | Visualização interativa do grafo de conhecimento |
 
 ---
 
-## 🧭 Especificações de Origem (Spec-Kit)
+## Especificações por funcionalidade
 
-O histórico evolutivo das funcionalidades encontra-se documentado em [`specs/`](../specs/):
-
-1. **[`001-particle-collision-demo`](../specs/001-particle-collision-demo/spec.md)** — Simulação base, Quadtree de pontos e comparação com força bruta.
-2. **[`002-didactic-step-mode`](../specs/002-didactic-step-mode/spec.md)** — Modo didático passo a passo com inspeção de *trace* e navegação por teclado.
-3. **[`003-collision-triggered-didactic`](../specs/003-collision-triggered-didactic/spec.md)** — Pausa automática disparada por colisão com *cooldown* de 5 segundos.
+- [`specs/001-particle-collision-demo/spec.md`](../specs/001-particle-collision-demo/spec.md) — Simulação base, Quadtree de pontos e seleção por arrasto.
+- [`specs/002-didactic-step-mode/spec.md`](../specs/002-didactic-step-mode/spec.md) — Modo didático passo a passo e atalhos de navegação.
+- [`specs/003-collision-triggered-didactic/spec.md`](../specs/003-collision-triggered-didactic/spec.md) — Pausa automática por colisão e intervalo de cooldown de 5 segundos.
