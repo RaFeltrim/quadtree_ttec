@@ -9,9 +9,37 @@ Simulação interativa que compara a detecção de colisão entre partículas po
 
 ---
 
-## Como abrir
+## Como executar
 
-Abra o arquivo [`index.html`](./index.html) diretamente no navegador.
+Após clonar o repositório, não é necessário instalar dependências nem rodar *build*.
+
+### 1. Abrir a simulação no navegador
+
+Abra [`index.html`](./index.html) diretamente ou execute pelo terminal:
+
+```bash
+# Windows (PowerShell / CMD)
+start index.html
+
+# Linux
+xdg-open index.html
+
+# macOS
+open index.html
+```
+
+*(Opcional, via servidor HTTP local)*:
+
+```bash
+python -m http.server 8080
+# Acesse: http://localhost:8080
+```
+
+### 2. Rodar os testes unitários
+
+```bash
+node --test
+```
 
 ### Controles
 
