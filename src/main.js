@@ -41,9 +41,30 @@ radiusSelect.addEventListener('change', restart);
 
 // O slider mostra o valor enquanto arrasta e só recomeça ao soltar.
 countInput.addEventListener('input', () => {
-  countValue.textContent = countInput.value;
+  countValue.value = countInput.value;
 });
 countInput.addEventListener('change', restart);
+
+// O campo numérico sincroniza com o slider (limitado entre min e max) e reinicia ao confirmar.
+function applyCountNumber() {
+  const min = Number(countInput.min);
+  const max = Number(countInput.max);
+  const parsed = parseInt(countValue.value, 10);
+  const clamped = Number.isNaN(parsed)
+    ? Number(countInput.value)
+    : Math.min(max, Math.max(min, parsed));
+  countValue.value = String(clamped);
+  countInput.value = String(clamped);
+  restart();
+}
+
+countValue.addEventListener('change', applyCountNumber);
+countValue.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    applyCountNumber();
+    countValue.blur();
+  }
+});
 
 // Trocar o modo não recomeça: as mesmas partículas seguem, só muda a detecção.
 modeBtn.addEventListener('click', () => {
@@ -122,6 +143,7 @@ stepBtn.addEventListener('click', () => {
 //   Esc               encerra a apresentação na hora
 window.addEventListener('keydown', (e) => {
   if (didactic !== 'presenting') return;
+  if (document.activeElement === countValue) return;
   if (!['ArrowRight', 'ArrowLeft', 'Enter', 'Escape'].includes(e.key)) return;
   e.preventDefault(); // a tecla não deve mexer no controle em foco nem rolar a página
   const { steps } = trace;

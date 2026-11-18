@@ -7,29 +7,44 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <canvas id="canvas"></canvas>
+  <canvas id="canvas" aria-label="Área da simulação de colisão de partículas"></canvas>
 
-  <div id="panel">
-    <label>
-      Partículas: <span id="countValue">200</span>
-      <input id="count" type="range" min="10" max="2000" value="200">
+  <aside id="panel" role="region" aria-label="Controles da simulação">
+    <div class="control-group">
+      <div class="field-range">
+        <div class="field-header">
+          <label for="count">Partículas</label>
+          <input id="countValue" type="number" min="10" max="2000" value="200" aria-label="Quantidade numérica de partículas">
+        </div>
+        <input id="count" type="range" min="10" max="2000" value="200" aria-label="Quantidade de partículas">
+      </div>
+
+      <label class="field-inline" for="radius">
+        <span>Raio (px)</span>
+        <select id="radius" aria-label="Raio das partículas em pixels">
+          <option value="2">2</option>
+          <option value="4" selected>4</option>
+          <option value="8">8</option>
+          <option value="16">16</option>
+          <option value="32">32</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="control-actions">
+      <button id="modeBtn" type="button" title="Alternar entre força bruta e Quadtree sem reiniciar">Modo: força bruta</button>
+      <button id="stepBtn" type="button" title="Ativar inspeção passo a passo na próxima colisão (até 200 partículas)">Modo didático: desligado</button>
+    </div>
+
+    <div id="notice" role="status" aria-live="polite"></div>
+
+    <label class="field-check" for="showGrid">
+      <input id="showGrid" type="checkbox">
+      <span>Mostrar grade</span>
     </label>
-    <label>
-      Raio (px):
-      <select id="radius">
-        <option value="2">2</option>
-        <option value="4" selected>4</option>
-        <option value="8">8</option>
-        <option value="16">16</option>
-        <option value="32">32</option>
-      </select>
-    </label>
-    <button id="modeBtn">Modo: força bruta</button>
-    <button id="stepBtn">Modo didático: desligado</button>
-    <div id="notice"></div>
-    <label><input id="showGrid" type="checkbox"> Mostrar grade</label>
-    <pre id="stats"></pre>
-  </div>
+
+    <pre id="stats" aria-label="Estatísticas da simulação"></pre>
+  </aside>
 
   <!-- Scripts clássicos (não ES modules): assim a demo funciona abrindo o arquivo direto, sem servidor. -->
   <script src="src/particle.js"></script>

@@ -1,64 +1,134 @@
-# Quadtree: colisão de partículas
+# Quadtree — Colisão de Partículas
 
-Demo didática que compara a detecção de colisão entre partículas por **força bruta**
-(todos contra todos) e por uma **Quadtree** implementada do zero.
+![JavaScript](https://img.shields.io/badge/JavaScript-ES6%2B-F7DF1E?style=flat-square&logo=javascript&logoColor=000000)
+![HTML5 Canvas](https://img.shields.io/badge/Canvas-2D%20API-E34F26?style=flat-square&logo=html5&logoColor=FFFFFF)
+![Node Test](https://img.shields.io/badge/node%20--test-31%2F31%20passando-2EA44F?style=flat-square&logo=nodedotjs&logoColor=FFFFFF)
+![Dependencies](https://img.shields.io/badge/Depend%C3%AAncias-Zero-4C1?style=flat-square)
 
-## Como abrir
+Simulação interativa que compara a detecção de colisão entre partículas por **força bruta** ($O(N^2)$) e por uma **Quadtree** ($O(N \log N)$) implementada do zero em JavaScript puro, sem servidor, sem *bundler* e sem dependências externas.
 
-Abra o `index.html` direto no navegador. Não precisa de servidor, build nem instalação.
+---
 
-Controles:
+## Como executar
 
-- **Partículas**: quantidade (10–2000); ao soltar o slider a simulação recomeça.
-- **Raio**: 2, 4, 8, 16 ou 32 px; recomeça a simulação.
-- **Modo**: alterna entre força bruta e Quadtree sem recomeçar.
-- **Mostrar grade**: desenha as subdivisões da Quadtree.
-- **Arrastar o mouse**: seleciona uma região e destaca as partículas encontradas pela
-  range query. Um clique simples limpa a seleção.
+Após clonar o repositório, não é necessário instalar dependências nem rodar *build*.
 
-O painel mostra FPS, número de partículas, testes de colisão por frame e o modo atual.
+### 1. Abrir a simulação no navegador
 
-## Modo didático
+Abra [`index.html`](./index.html) diretamente ou execute pelo terminal:
 
-Mostra o algoritmo encontrando uma colisão, uma iteração por vez. Liga com o botão
-**Modo didático** (até 200 partículas; com poucas, ~20, fica mais fácil acompanhar).
+```bash
+# Windows (PowerShell / CMD)
+start index.html
 
-A animação continua rodando até duas partículas colidirem. Aí ela pausa, antes do
-ricochete, e mostra a detecção daquele frame desde o primeiro passo. As duas partículas
-que colidiram ficam **verdes** durante toda a apresentação.
+# Linux
+xdg-open index.html
 
-- **→ / ←**: próximo / anterior passo.
-- **Shift + → / ←**: próxima / anterior partícula.
-- **Enter**: vai direto ao teste da colisão que disparou a pausa.
-- **Esc** (ou → no último passo): encerra, resolve as colisões e retoma a animação.
-- **Botão de modo**: refaz os passos do mesmo frame com o outro algoritmo.
+# macOS
+open index.html
+```
 
-Depois de encerrar, por 5 segundos as colisões não pausam (o painel mostra a contagem);
-depois disso, a próxima colisão pausa de novo.
+*(Opcional, via servidor HTTP local)*:
 
-Na tela: a partícula analisada tem um anel branco; em Quadtree, o quadrado tracejado é
-a região de busca, os nós em ciano tocaram a região (a busca desce por eles) e os
-vermelhos foram descartados inteiros. Cada teste é uma linha entre as duas partículas:
-amarela sem colisão, vermelha com colisão. Outras colisões encontradas no frame ficam
-vermelhas. Durante a apresentação o mouse é ignorado.
+```bash
+python -m http.server 8080
+# Acesse: http://localhost:8080
+```
 
-## Como testar
+### 2. Rodar os testes unitários
 
 ```bash
 node --test
 ```
 
-Os testes cobrem só a lógica pura (`src/particle.js`, `src/quadtree.js`,
-`src/simulation.js`), sem dependências externas.
+### Controles
 
-## Estrutura
+- **Partículas (`10–2000`)**: ajuste pelo *slider* (reinicia ao soltar) ou diretamente pelo campo numérico ao lado (`Enter` ou sair do campo aplica o valor entre `10` e `2000` e reinicia).
+- **Raio (`2, 4, 8, 16, 32 px`)**: altera o tamanho das partículas e reinicia a simulação.
+- **Modo (`Força bruta` / `Quadtree`)**: alterna o algoritmo de detecção sem reiniciar as posições.
+- **Mostrar grade**: desenha as subdivisões recursivas da Quadtree no canvas.
+- **Arrastar o mouse**: seleciona uma região retangular e destaca as partículas encontradas pela *range query*. Um clique simples limpa a seleção.
+
+O painel superior exibe FPS, número de partículas, testes de colisão por frame e o algoritmo ativo.
+
+---
+
+## Modo didático
+
+Permite acompanhar o algoritmo encontrando colisões iteração por iteração. Ative pelo botão **Modo didático** (disponível para até `200` partículas; valores próximos de `20` facilitam a visualização).
+
+A animação executa normalmente até duas partículas colidirem. Nesse momento, a simulação pausa **antes do ricochete**, destaca em **verde** o par que colidiu e exibe o passo a passo da detecção daquele frame desde a primeira iteração:
+
+| Atalho / Controle | Ação durante a apresentação |
+| :--- | :--- |
+| `→` / `←` | Avança ou retrocede um passo da detecção |
+| `Shift + →` / `Shift + ←` | Pula para a próxima ou anterior partícula analisada |
+| `Enter` | Vai direto ao teste da colisão que disparou a pausa |
+| `Esc` *(ou `→` no último passo)* | Encerra o modo passo a passo, aplica os ricochetes e retoma a animação |
+| **Botão de Modo** | Refaz os passos do mesmo frame com o outro algoritmo |
+
+Após encerrar a apresentação, há um intervalo de `5 s` (`COOLDOWN_MS = 5000`) em que novas colisões não pausam a simulação (o painel exibe a contagem regressiva). Terminado o intervalo, a próxima colisão volta a pausar.
+
+**Representação no canvas:**
+- Anel branco: partícula sob análise no passo atual.
+- Quadrado tracejado (Quadtree): região da *range query*.
+- Quadrantes em ciano / vermelho: nós intersectados (descida na árvore) vs. nós descartados inteiros (poda espacial).
+- Linhas amarelas / vermelhas: testes sem colisão vs. com colisão (o par que disparou a pausa permanece em verde).
+- Durante a apresentação, eventos de mouse sobre o canvas são ignorados.
+
+---
+
+## Testes
+
+Execute a suíte unitária nativa com Node.js:
+
+```bash
+node --test
+```
+
+Os **31 testes** em [`tests/`](./tests) cobrem exclusivamente a lógica pura (`src/particle.js`, `src/quadtree.js`, `src/simulation.js`), sem dependências externas nem acoplamento ao DOM.
+
+---
+
+## Estrutura do repositório
 
 ```text
-index.html, style.css
-src/particle.js     partícula, quique nas bordas e ricochete
-src/quadtree.js     Rect e Quadtree (insert, subdivide, query)
-src/simulation.js   passo do frame e detecção (força bruta / Quadtree)
-src/renderer.js     desenho no canvas
-src/main.js         controles, mouse e loop de animação
-tests/              testes com node:test
+quadtree_ttec/
+├── index.html                           # Ponto de entrada da aplicação web
+├── style.css                            # Estilos do canvas e do painel de controles
+├── src/
+│   ├── particle.js                      # Entidade Particle, bordas e resolveCollision
+│   ├── quadtree.js                      # Rect e Quadtree (insert, subdivide, query)
+│   ├── simulation.js                    # Step do frame, força bruta, Quadtree e buildTrace
+│   ├── renderer.js                      # Renderização no Canvas 2D
+│   └── main.js                          # Controles de UI, loop e máquina de estados didática
+├── tests/
+│   ├── particle.test.js                 # Testes unitários de física e colisão
+│   ├── quadtree.test.js                 # Testes unitários de subdivisão e range query
+│   └── simulation.test.js               # Testes de detecção, SC-002 e trace didático
+├── docs/
+│   ├── README.md                        # Índice da documentação técnica
+│   ├── arquitetura.md                   # Arquitetura dos módulos e máquina de estados
+│   └── algoritmos-e-complexidade.md     # Análise assintótica e funcionamento da Quadtree
+├── specs/                               # Especificações funcionais (001, 002, 003)
+└── graphify-out/                        # Mapeamento estrutural gerado via /graphify
 ```
+
+---
+
+## Documentação e especificações
+
+- Índice técnico: [`docs/README.md`](./docs/README.md)
+- Arquitetura e contratos: [`docs/arquitetura.md`](./docs/arquitetura.md)
+- Algoritmos e complexidade: [`docs/algoritmos-e-complexidade.md`](./docs/algoritmos-e-complexidade.md)
+- Relatório estrutural (`/graphify`): [`graphify-out/GRAPH_REPORT.md`](./graphify-out/GRAPH_REPORT.md)
+- Especificações: [`001-particle-collision-demo`](./specs/001-particle-collision-demo/spec.md), [`002-didactic-step-mode`](./specs/002-didactic-step-mode/spec.md), [`003-collision-triggered-didactic`](./specs/003-collision-triggered-didactic/spec.md)
+
+---
+
+## Integrantes
+
+- **Gustavo** — [@gcontiero11](https://github.com/gcontiero11)
+- **Heitor** — [@heitorlemescaldas](https://github.com/heitorlemescaldas)
+- **Ian** — [@Iofsoft](https://github.com/Iofsoft)
+- **Rafael** — [@RaFeltrim](https://github.com/RaFeltrim)
