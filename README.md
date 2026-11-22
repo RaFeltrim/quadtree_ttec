@@ -2,7 +2,7 @@
 
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES6%2B-F7DF1E?style=flat-square&logo=javascript&logoColor=000000)
 ![HTML5 Canvas](https://img.shields.io/badge/Canvas-2D%20API-E34F26?style=flat-square&logo=html5&logoColor=FFFFFF)
-![Node Test](https://img.shields.io/badge/node%20--test-31%2F31%20passando-2EA44F?style=flat-square&logo=nodedotjs&logoColor=FFFFFF)
+![Node Test](https://img.shields.io/badge/node%20--test-32%2F32%20passando-2EA44F?style=flat-square&logo=nodedotjs&logoColor=FFFFFF)
 ![Dependencies](https://img.shields.io/badge/Depend%C3%AAncias-Zero-4C1?style=flat-square)
 
 Simulação interativa que compara a detecção de colisão entre partículas por **força bruta** ($O(N^2)$) e por uma **Quadtree** ($O(N \log N)$) implementada do zero em JavaScript puro, sem servidor, sem *bundler* e sem dependências externas.
@@ -92,7 +92,7 @@ Execute a suíte unitária nativa com Node.js:
 node --test
 ```
 
-Os **31 testes** em [`tests/`](./tests) cobrem exclusivamente a lógica pura (`src/particle.js`, `src/quadtree.js`, `src/simulation.js`), sem dependências externas nem acoplamento ao DOM.
+Os **32 testes** em [`tests/`](./tests) cobrem exclusivamente a lógica pura (`src/particle.js`, `src/quadtree.js`, `src/simulation.js`), sem dependências externas nem acoplamento ao DOM.
 
 ---
 
