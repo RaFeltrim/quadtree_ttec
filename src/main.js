@@ -241,6 +241,8 @@ function updateStats(now) {
     `FPS:        ${fps.toFixed(0)}\n` +
     `Partículas: ${sim.particles.length}\n` +
     `Testes:     ${sim.tests}\n` +
+    `Detecção:   ${sim.detectMs.toFixed(3)} ms\n` +
+    (sim.mode === 'quadtree' ? `Árvore:     ${sim.buildMs.toFixed(3)} ms\n` : '') +
     `Modo:       ${sim.mode === 'brute' ? 'força bruta' : 'Quadtree'}` +
     (sim.selection ? `\nEncontradas: ${sim.selectedCount}` : '') +
     (didactic === 'waiting' ? '\nModo didático: aguardando colisão' : '') +
