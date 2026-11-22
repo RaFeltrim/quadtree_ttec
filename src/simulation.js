@@ -149,23 +149,25 @@ class Simulation {
 //   { type: 'particle', p, range }           começa a analisar a partícula p
 //   { type: 'visit', p, range, node, hit }   (Quadtree) visitou um nó; hit = tocou a região?
 //   { type: 'test', p, q, overlap }          testou o par (p, q); overlap = colidem?
-// Cada passo também leva os totais acumulados `tests` e `collisions`.
+// Cada passo também leva os totais acumulados `tests`, `collisions` e `visits`
+// (nós visitados; sempre 0 na força bruta, que não usa árvore).
 function buildTrace(particles, tree, mode) {
   const steps = [];
   let tests = 0;
   let collisions = 0;
+  let visits = 0;
 
   function addTest(p, q) {
     tests++;
     const overlap = particlesOverlap(p, q);
     if (overlap) collisions++;
-    steps.push({ type: 'test', p, q, overlap, tests, collisions });
+    steps.push({ type: 'test', p, q, overlap, tests, collisions, visits });
   }
 
   if (mode === 'brute') {
     for (let i = 0; i < particles.length; i++) {
       const p = particles[i];
-      steps.push({ type: 'particle', p, range: null, tests, collisions });
+      steps.push({ type: 'particle', p, range: null, tests, collisions, visits });
       for (let j = i + 1; j < particles.length; j++) addTest(p, particles[j]);
     }
     return steps;
@@ -173,14 +175,15 @@ function buildTrace(particles, tree, mode) {
 
   for (const p of particles) {
     const range = new Rect(p.x - 2 * p.r, p.y - 2 * p.r, 4 * p.r, 4 * p.r);
-    steps.push({ type: 'particle', p, range, tests, collisions });
+    steps.push({ type: 'particle', p, range, tests, collisions, visits });
 
     // Percorre o caminho da busca: cada nó visitado e, logo em seguida,
     // os testes com as partículas que a busca encontrou nele.
     const visited = [];
     tree.query(range, [], visited);
     for (const { node, hit, found } of visited) {
-      steps.push({ type: 'visit', p, range, node, hit, tests, collisions });
+      visits++;
+      steps.push({ type: 'visit', p, range, node, hit, tests, collisions, visits });
       for (const q of found) {
         if (q.id > p.id) addTest(p, q);
       }

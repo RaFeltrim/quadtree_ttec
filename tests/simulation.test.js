@@ -275,3 +275,14 @@ test('step registra o tempo de detecção e de construção da árvore', () => {
   assert.ok(sim.detectMs > 0);
   assert.ok(sim.buildMs > 0);
 });
+
+test('buildTrace acumula nós visitados e o total de passos = partículas + nós + testes', () => {
+  const { particles, tree } = randomScene(100, 8, 400, 300);
+  const brute = buildTrace(particles, tree, 'brute');
+  assert.equal(brute[brute.length - 1].visits, 0);
+
+  const quad = buildTrace(particles, tree, 'quadtree');
+  const last = quad[quad.length - 1];
+  assert.equal(last.visits, quad.filter((s) => s.type === 'visit').length);
+  assert.equal(quad.length, particles.length + last.visits + last.tests);
+});

@@ -191,13 +191,22 @@ function updateTraceStats() {
   const s = trace.steps[trace.index];
   const [a, b] = trace.pair;
   const marker = trace.index === trace.pairIndex ? '  ← colisão que disparou a pausa' : '';
+  const total = trace.steps[trace.steps.length - 1];
+  const isQuadtree = sim.mode === 'quadtree';
+  // Passo = uma ação do algoritmo (analisar partícula, visitar nó ou testar par);
+  // "Testes" conta só as comparações entre pares, por isso é bem menor que o total de passos.
+  const composition = isQuadtree
+    ? `${sim.particles.length} part. + ${total.visits} nós + ${total.tests} testes`
+    : `${sim.particles.length} part. + ${total.tests} testes`;
   stats.textContent =
     `MODO DIDÁTICO (${sim.mode === 'brute' ? 'força bruta' : 'Quadtree'})\n` +
     `Colisão apresentada: #${a.id} × #${b.id}\n` +
     `Passo ${trace.index + 1} / ${trace.steps.length}\n` +
+    `(${composition})\n` +
     `${describeStep(s)}${marker}\n` +
-    `Testes até aqui:   ${s.tests}\n` +
-    `Colisões até aqui: ${s.collisions}\n` +
+    `Testes:    ${s.tests}/${total.tests}\n` +
+    (isQuadtree ? `Nós:       ${s.visits}/${total.visits}\n` : '') +
+    `Colisões:  ${s.collisions}\n` +
     `→ ← passo · Shift partícula · Enter colisão · Esc continuar`;
 }
 

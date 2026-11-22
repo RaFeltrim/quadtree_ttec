@@ -75,6 +75,8 @@ A animação executa normalmente até duas partículas colidirem. Nesse momento,
 
 Após encerrar a apresentação, há um intervalo de `5 s` (`COOLDOWN_MS = 5000`) em que novas colisões não pausam a simulação (o painel exibe a contagem regressiva). Terminado o intervalo, a próxima colisão volta a pausar.
 
+**Como ler o painel do modo didático:** `Passo N / M` conta todas as ações do algoritmo (analisar uma partícula, visitar um nó da árvore ou testar um par); a linha entre parênteses mostra a composição de `M` (por exemplo, `200 partículas + 2793 nós + 200 testes`). Já `Testes` e `Nós` (visitados) mostram o progresso sobre o total do frame. Por isso `M` é bem maior que o `Testes` do painel normal: este conta só as comparações entre pares.
+
 **Representação no canvas:**
 - Anel branco: partícula sob análise no passo atual.
 - Quadrado tracejado (Quadtree): região da *range query*.
