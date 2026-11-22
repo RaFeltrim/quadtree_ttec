@@ -42,6 +42,11 @@ function findPairsQuadtree(particles, tree) {
   return { pairs, tests };
 }
 
+// Média móvel: um frame isolado é muito ruidoso para ler no painel.
+function smooth(average, sample) {
+  return average === 0 ? sample : average * 0.9 + sample * 0.1;
+}
+
 class Simulation {
   constructor(width, height) {
     this.width = width;
@@ -51,6 +56,8 @@ class Simulation {
     this.mode = 'brute'; // 'brute' | 'quadtree'
     this.tree = null; // Quadtree do último frame (usada pela grade e pela seleção)
     this.tests = 0; // testes de colisão do último frame
+    this.detectMs = 0; // tempo médio (ms) para achar os pares colidindo
+    this.buildMs = 0; // tempo médio (ms) para reconstruir a Quadtree
     this.selection = null;
     this.selectedCount = 0;
   }
@@ -69,6 +76,8 @@ class Simulation {
       this.particles.push(new Particle(i, x, y, Math.cos(angle) * speed, Math.sin(angle) * speed, radius));
     }
     this.tests = 0;
+    this.detectMs = 0;
+    this.buildMs = 0;
     this.selection = null;
     this.selectedCount = 0;
   }
@@ -90,8 +99,10 @@ class Simulation {
     for (const p of this.particles) p.move(this.width, this.height);
 
     // 2) Reconstruir a Quadtree do zero (mais simples que atualizá-la).
+    const start = performance.now();
     this.tree = new Quadtree(new Rect(0, 0, this.width, this.height));
     for (const p of this.particles) this.tree.insert(p);
+    this.buildMs = smooth(this.buildMs, performance.now() - start);
   }
 
   // Detectar e resolver também ficam separados: assim o modo didático pode olhar
@@ -102,9 +113,11 @@ class Simulation {
 
   // 3) Detectar todos os pares com as posições congeladas (não altera as partículas).
   detect() {
+    const start = performance.now();
     const result = this.mode === 'brute'
       ? findPairsBruteForce(this.particles)
       : findPairsQuadtree(this.particles, this.tree);
+    this.detectMs = smooth(this.detectMs, performance.now() - start);
     this.tests = result.tests;
     return result;
   }

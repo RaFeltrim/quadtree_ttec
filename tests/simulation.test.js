@@ -266,3 +266,12 @@ test('findPairStepIndex devolve -1 para um par que não foi testado', () => {
   const steps = buildTrace(particles, tree, 'quadtree');
   assert.equal(findPairStepIndex(steps, particles[0], particles[1]), -1);
 });
+
+test('step registra o tempo de detecção e de construção da árvore', () => {
+  const sim = new Simulation(800, 600);
+  sim.reset(200, 4, 800, 600);
+  assert.equal(sim.detectMs, 0);
+  sim.step();
+  assert.ok(sim.detectMs > 0);
+  assert.ok(sim.buildMs > 0);
+});
