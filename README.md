@@ -96,6 +96,21 @@ Os **32 testes** em [`tests/`](./tests) cobrem exclusivamente a lógica pura (`s
 
 ---
 
+## Benchmark de escala
+
+Compara força bruta e Quadtree para `N` de `100` a `10000` partículas e raios `4` e `16`, sem navegador e sem dependências:
+
+```bash
+node bench/benchmark.js                     # tabela em Markdown (~40 s)
+node bench/benchmark.js --csv               # saída CSV, para gráficos
+node bench/benchmark.js --sizes=500,2000    # só alguns tamanhos
+node bench/benchmark.js --frames=100        # mais frames por cenário (mais estável)
+```
+
+Para cada cenário, mede a **mediana** do tempo por frame (em ms) da força bruta, da construção da árvore e da busca na Quadtree. O ganho é `bruta / (árvore + busca)`. A cada frame o script também confere que os dois algoritmos encontram exatamente os mesmos pares e falha com `AssertionError` se divergirem. Os tempos variam conforme a máquina; o que importa é a tendência com o crescimento de `N`.
+
+---
+
 ## Estrutura do repositório
 
 ```text
@@ -108,6 +123,8 @@ quadtree_ttec/
 │   ├── simulation.js                    # Step do frame, força bruta, Quadtree e buildTrace
 │   ├── renderer.js                      # Renderização no Canvas 2D
 │   └── main.js                          # Controles de UI, loop e máquina de estados didática
+├── bench/
+│   └── benchmark.js                     # Benchmark de escala (força bruta x Quadtree)
 ├── tests/
 │   ├── particle.test.js                 # Testes unitários de física e colisão
 │   ├── quadtree.test.js                 # Testes unitários de subdivisão e range query
