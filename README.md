@@ -46,6 +46,7 @@ node --test
 - **Partículas (`10–2000`)**: ajuste pelo *slider* (reinicia ao soltar) ou diretamente pelo campo numérico ao lado (`Enter` ou sair do campo aplica o valor entre `10` e `2000` e reinicia).
 - **Raio (`2, 4, 8, 16, 32 px`)**: altera o tamanho das partículas e reinicia a simulação.
 - **Distribuição (`Uniforme`, `Aglomerado`, `Dois clusters`)**: define a posição inicial das partículas para comparar o caso médio (`Uniforme`) com cenários de degradação por alta densidade local (`Aglomerado` no centro ou `Dois clusters` separados).
+- **FPS alvo (`5, 15, 30, 60, 120, Máx`)**: ajusta a taxa de passos simulados por segundo sem alterar as posições nem os cálculos de tempo por frame.
 - **Modo (`Força bruta` / `Quadtree`)**: alterna o algoritmo de detecção (mantém as posições em `Uniforme` e reinicia automaticamente a distribuição em `Aglomerado` e `Dois clusters`).
 - **Reiniciar simulação**: reinicia as posições das partículas com a distribuição selecionada.
 - **Mostrar grade**: desenha as subdivisões recursivas da Quadtree no canvas.
@@ -57,6 +58,7 @@ O painel superior exibe FPS, número de partículas, testes de colisão por fram
 - **Detecção**: tempo médio (ms) para encontrar os pares que colidem.
 - **Árvore** *(só no modo Quadtree)*: tempo médio (ms) para reconstruir a Quadtree a cada frame.
 - **Total**: custo total por frame (em força bruta é igual a **Detecção**; em Quadtree é **Detecção + Árvore**), seguido da **média** acumulada por frame desde o último reinício ou troca de modo.
+- **Gráfico de velocidade**: exibido abaixo das estatísticas com o tempo por frame (ms) e o pico máximo. Ao alternar o modo na mesma distribuição, a curva anterior permanece visível como referência para comparação direta com a nova linha.
 
 O FPS é limitado pela taxa de atualização do monitor e por isso pode não diferenciar os algoritmos; o tempo em ms mostra a diferença real. Com `2000` partículas e raio `4`, a força bruta leva cerca de `4 ms` por frame e a Quadtree cerca de `1,5 ms` (detecção + árvore), com ordem de grandeza menor de testes (`~2 milhões` contra `~150`). O ganho cresce com o número de partículas.
 

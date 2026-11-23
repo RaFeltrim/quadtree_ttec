@@ -73,6 +73,7 @@ class Simulation {
     this.detectMs = 0; // tempo médio (ms) para achar os pares colidindo
     this.buildMs = 0; // tempo médio (ms) para reconstruir a Quadtree
     this.lastBuildMs = 0; // último frame (sem suavização), para medir a média
+    this.lastTotalMs = 0; // tempo bruto total do último frame (ms)
     this.avgMs = 0; // média aritmética do tempo total por frame (ms)
     this.frameCount = 0; // frames contados em avgMs
     this.selection = null;
@@ -106,6 +107,7 @@ class Simulation {
     this.detectMs = 0;
     this.buildMs = 0;
     this.lastBuildMs = 0;
+    this.lastTotalMs = 0;
     this.avgMs = 0;
     this.frameCount = 0;
     this.selection = null;
@@ -151,6 +153,7 @@ class Simulation {
     const elapsed = performance.now() - start;
     this.detectMs = smooth(this.detectMs, elapsed);
     const frameTotal = elapsed + (this.mode === 'quadtree' ? this.lastBuildMs : 0);
+    this.lastTotalMs = frameTotal;
     this.frameCount++;
     this.avgMs += (frameTotal - this.avgMs) / this.frameCount;
     this.tests = result.tests;

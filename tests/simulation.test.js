@@ -286,12 +286,14 @@ test('avgMs registra a média acumulada por frame em cada modo e zera no reset',
   sim.mode = 'brute';
   sim.step();
   assert.equal(sim.avgMs, sim.detectMs);
+  assert.equal(sim.lastTotalMs, sim.detectMs);
   assert.equal(sim.frameCount, 1);
 
   sim.reset(200, 4, 800, 600);
   sim.mode = 'quadtree';
   sim.step();
   assert.equal(sim.avgMs, sim.detectMs + sim.buildMs);
+  assert.equal(sim.lastTotalMs, sim.detectMs + sim.buildMs);
   assert.equal(sim.frameCount, 1);
 
   sim.step();
@@ -300,6 +302,7 @@ test('avgMs registra a média acumulada por frame em cada modo e zera no reset',
 
   sim.reset(200, 4, 800, 600);
   assert.equal(sim.avgMs, 0);
+  assert.equal(sim.lastTotalMs, 0);
   assert.equal(sim.frameCount, 0);
 });
 

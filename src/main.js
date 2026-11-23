@@ -6,12 +6,24 @@ const countInput = document.getElementById('count');
 const countValue = document.getElementById('countValue');
 const radiusSelect = document.getElementById('radius');
 const distributionSelect = document.getElementById('distribution');
+const fpsSelect = document.getElementById('fps');
 const modeBtn = document.getElementById('modeBtn');
 const resetBtn = document.getElementById('resetBtn');
 const stepBtn = document.getElementById('stepBtn');
 const notice = document.getElementById('notice');
 const showGridInput = document.getElementById('showGrid');
 const stats = document.getElementById('stats');
+const speedChart = document.getElementById('speedChart');
+const speedCtx = speedChart.getContext('2d');
+
+const MAX_SPEED_SAMPLES = 180;
+const speedSeries = { brute: [], quadtree: [] };
+
+function recordSpeed() {
+  const arr = speedSeries[sim.mode];
+  arr.push(sim.lastTotalMs);
+  if (arr.length > MAX_SPEED_SAMPLES) arr.shift();
+}
 
 const sim = new Simulation(innerWidth, innerHeight);
 
@@ -22,9 +34,16 @@ function resizeCanvas() {
 
 // Mudar quantidade, raio ou tamanho da janela sempre recomeça a simulação.
 // Com o modo didático ligado, ele volta a aguardar uma colisão (se couber no limite).
-function restart() {
+function restart(keepOtherSeries = false) {
   sim.reset(Number(countInput.value), Number(radiusSelect.value), canvas.width, canvas.height, distributionSelect.value);
   trace = null;
+  stepAccumulator = 0;
+  if (keepOtherSeries === true) {
+    speedSeries[sim.mode] = [];
+  } else {
+    speedSeries.brute = [];
+    speedSeries.quadtree = [];
+  }
   if (sim.particles.length <= MAX_TRACE_PARTICLES) {
     notice.textContent = '';
     if (didactic !== 'off') didactic = 'waiting';
@@ -41,6 +60,7 @@ window.addEventListener('resize', () => {
 });
 radiusSelect.addEventListener('change', restart);
 distributionSelect.addEventListener('change', restart);
+fpsSelect.addEventListener('change', () => { stepAccumulator = 0; });
 resetBtn.addEventListener('click', restart);
 
 // O slider mostra o valor enquanto arrasta e só recomeça ao soltar.
@@ -76,7 +96,8 @@ modeBtn.addEventListener('click', () => {
   sim.avgMs = sim.frameCount = 0;
   modeBtn.textContent = sim.mode === 'brute' ? 'Modo: força bruta' : 'Modo: Quadtree';
   if (didactic === 'presenting') rebuildTrace(); // mesmo frame e mesmo par, outro algoritmo
-  else if (sim.distribution !== 'uniform') restart();
+  else if (sim.distribution !== 'uniform') restart(true);
+  else speedSeries[sim.mode] = [];
 });
 
 // Modo didático: a animação roda até a detecção encontrar uma colisão. Aí pausa antes
@@ -98,6 +119,7 @@ let cooldownEnd = 0; // só em 'cooldown': quando o intervalo termina (ms)
 function waitForCollision() {
   sim.moveAndBuildTree();
   const { pairs } = sim.detect();
+  recordSpeed();
   if (pairs.length === 0) {
     sim.resolve(pairs);
     return;
@@ -244,14 +266,27 @@ window.addEventListener('mouseup', () => {
   dragRect = null;
 });
 
-// FPS: média suavizada do tempo entre frames; o painel é atualizado ~4 vezes por segundo.
+// FPS: taxa real de passos simulados; o painel é atualizado ~4 vezes por segundo.
 let lastTime = performance.now();
 let fps = 60;
 let lastStatsUpdate = 0;
+let stepAccumulator = 0;
+let stepsSinceStats = 0;
+
+function stepOnce() {
+  if (didactic === 'waiting') waitForCollision(); // pode passar para 'presenting'
+  else {
+    sim.step();
+    recordSpeed();
+  }
+}
 
 function updateStats(now) {
-  if (now - lastStatsUpdate < 250) return;
+  const dt = now - lastStatsUpdate;
+  if (dt < 250) return;
+  if (lastStatsUpdate > 0) fps = fps * 0.7 + ((stepsSinceStats * 1000) / dt) * 0.3;
   lastStatsUpdate = now;
+  stepsSinceStats = 0;
   const totalMs = sim.detectMs + (sim.mode === 'quadtree' ? sim.buildMs : 0);
   stats.textContent =
     `FPS:        ${fps.toFixed(0)}\n` +
@@ -269,13 +304,28 @@ function updateStats(now) {
 }
 
 function loop(now) {
-  const elapsed = now - lastTime;
+  const elapsed = Math.min(Math.max(now - lastTime, 0), 250);
   lastTime = now;
-  if (elapsed > 0) fps = fps * 0.9 + (1000 / elapsed) * 0.1;
 
   if (didactic === 'cooldown' && now >= cooldownEnd) didactic = 'waiting';
-  if (didactic === 'waiting') waitForCollision(); // pode passar para 'presenting'
-  else if (didactic !== 'presenting') sim.step();
+
+  if (didactic !== 'presenting') {
+    const targetFps = Number(fpsSelect.value);
+    if (targetFps === 0) {
+      stepOnce();
+      stepsSinceStats++;
+    } else {
+      const interval = 1000 / targetFps;
+      stepAccumulator = Math.min(stepAccumulator + elapsed, interval * 4);
+      while (stepAccumulator >= interval && didactic !== 'presenting') {
+        stepOnce();
+        stepAccumulator -= interval;
+        stepsSinceStats++;
+      }
+    }
+  } else {
+    stepAccumulator = 0;
+  }
 
   if (didactic === 'presenting') {
     drawTrace(ctx, sim, trace.steps, trace.index, showGridInput.checked, trace.pair);
@@ -284,6 +334,7 @@ function loop(now) {
     draw(ctx, sim, showGridInput.checked, dragRect);
     updateStats(now);
   }
+  drawSpeedChart(speedCtx, speedSeries, sim.mode, MAX_SPEED_SAMPLES);
   requestAnimationFrame(loop);
 }
 

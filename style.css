@@ -137,7 +137,8 @@ canvas {
   transition: background-color 140ms ease, border-color 140ms ease;
 }
 
-#radius {
+#radius,
+#fps {
   min-width: 72px;
   text-align: center;
 }
@@ -193,18 +194,26 @@ canvas {
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-sm);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 12px;
+  font-size: 13.5px;
   line-height: 1.45;
   color: var(--text-primary);
   white-space: pre-wrap;
   word-break: break-word;
 }
 
+#speedChart {
+  width: 100%;
+  height: 148px;
+  display: block;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+}
+
 @media (pointer: coarse), (max-width: 600px) {
   #panel {
     top: 8px;
     left: 8px;
-    width: min(280px, calc(100vw - 16px));
+    width: min(308px, calc(100vw - 16px));
   }
 
   #panel select,

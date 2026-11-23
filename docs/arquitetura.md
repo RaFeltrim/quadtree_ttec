@@ -20,7 +20,7 @@ flowchart LR
 | [`src/particle.js`](../src/particle.js) | Estado da partícula, quique nas bordas e resposta elástica | `Particle`, `particlesOverlap()`, `resolveCollision()` |
 | [`src/quadtree.js`](../src/quadtree.js) | Árvore espacial quaternária com limites de capacidade e profundidade | `Rect`, `Quadtree` (`capacity = 4`, `maxDepth = 8`) |
 | [`src/simulation.js`](../src/simulation.js) | Ciclo do frame, detecção, seleção por região e geração de trace | `Simulation`, `findPairsBruteForce()`, `findPairsQuadtree()`, `buildTrace()` |
-| [`src/renderer.js`](../src/renderer.js) | Desenho das partículas, grade da Quadtree, seleção e trace no Canvas 2D | `draw()`, `drawTree()`, `drawTrace()` |
+| [`src/renderer.js`](../src/renderer.js) | Desenho das partículas, grade da Quadtree, seleção, trace e gráfico de velocidade no Canvas 2D | `draw()`, `drawTree()`, `drawTrace()`, `drawSpeedChart()` |
 | [`src/main.js`](../src/main.js) | Eventos de DOM (slider, `#countValue`, `#distribution`), mouse, teclado, `requestAnimationFrame` e controle didático | `loop()`, `restart()`, `applyCountNumber()`, `rebuildTrace()` |
 
 ---
