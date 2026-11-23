@@ -146,3 +146,84 @@ function drawTrace(ctx, sim, steps, index, showGrid, pair) {
   ctx.arc(p.x, p.y, p.r + 3, 0, 2 * Math.PI);
   ctx.stroke();
 }
+
+// ---------- Gráfico de velocidade (painel) ----------
+
+const COLOR_BRUTE = '#f87171';
+const COLOR_BRUTE_REF = 'rgba(248, 113, 113, 0.55)';
+const COLOR_QUAD = '#38bdf8';
+const COLOR_QUAD_REF = 'rgba(56, 189, 248, 0.55)';
+
+function drawSpeedChart(ctx, series, activeMode, maxSamples) {
+  const { width, height } = ctx.canvas;
+  ctx.clearRect(0, 0, width, height);
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+  ctx.fillRect(0, 0, width, height);
+
+  const padLeft = 48;
+  const padRight = 6;
+  const padTop = 46;
+  const padBottom = 10;
+  const plotW = Math.max(1, width - padLeft - padRight);
+  const plotH = Math.max(1, height - padTop - padBottom);
+  const maxVal = Math.max(...series.brute, ...series.quadtree, 0.1);
+  const xAt = (i) => padLeft + (i / Math.max(1, maxSamples - 1)) * plotW;
+  const yAt = (v) => padTop + plotH * (1 - v / maxVal);
+
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'right';
+  ctx.lineWidth = 1;
+  for (const frac of [0, 0.5, 1]) {
+    const y = padTop + plotH * (1 - frac);
+    ctx.beginPath();
+    ctx.moveTo(padLeft, y);
+    ctx.lineTo(width - padRight, y);
+    ctx.stroke();
+    ctx.fillText(frac === 0 ? '0' : (maxVal * frac).toFixed(1), padLeft - 5, y);
+  }
+
+  const drawLine = (samples, color, isActive) => {
+    if (samples.length === 0) return;
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    if (samples.length > 1) {
+      ctx.lineWidth = isActive ? 2 : 1.5;
+      ctx.beginPath();
+      ctx.moveTo(xAt(0), yAt(samples[0]));
+      for (let i = 1; i < samples.length; i++) {
+        ctx.lineTo(xAt(i), yAt(samples[i]));
+      }
+      ctx.stroke();
+    }
+    if (isActive) {
+      const last = samples.length - 1;
+      ctx.beginPath();
+      ctx.arc(xAt(last), yAt(samples[last]), 2.5, 0, 2 * Math.PI);
+      ctx.fill();
+    }
+  };
+
+  const otherMode = activeMode === 'brute' ? 'quadtree' : 'brute';
+  drawLine(series[otherMode], otherMode === 'brute' ? COLOR_BRUTE_REF : COLOR_QUAD_REF, false);
+  drawLine(series[activeMode], activeMode === 'brute' ? COLOR_BRUTE : COLOR_QUAD, true);
+
+  ctx.font = '14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+  ctx.textBaseline = 'top';
+  ctx.textAlign = 'left';
+  let ly = 6;
+  const rows = [
+    ['brute', '● Bruta   ', COLOR_BRUTE],
+    ['quadtree', '● Quadtree', COLOR_QUAD],
+  ];
+  for (const [mode, label, color] of rows) {
+    const samples = series[mode];
+    if (samples.length === 0) continue;
+    const peak = Math.max(...samples);
+    ctx.fillStyle = color;
+    ctx.fillText(`${label} máx ${peak.toFixed(2)} ms`, 6, ly);
+    ly += 18;
+  }
+}

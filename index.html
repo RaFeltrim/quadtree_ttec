@@ -29,10 +29,32 @@
           <option value="32">32</option>
         </select>
       </label>
+
+      <label class="field-inline" for="distribution">
+        <span>Distribuição</span>
+        <select id="distribution" aria-label="Distribuição espacial das partículas">
+          <option value="uniform" selected>Uniforme</option>
+          <option value="cluster">Aglomerado</option>
+          <option value="clusters">Dois clusters</option>
+        </select>
+      </label>
+
+      <label class="field-inline" for="fps">
+        <span>FPS alvo</span>
+        <select id="fps" aria-label="Taxa de quadros alvo da simulação">
+          <option value="5">5</option>
+          <option value="15">15</option>
+          <option value="30">30</option>
+          <option value="60" selected>60</option>
+          <option value="120">120</option>
+          <option value="0">Máx</option>
+        </select>
+      </label>
     </div>
 
     <div class="control-actions">
-      <button id="modeBtn" type="button" title="Alternar entre força bruta e Quadtree sem reiniciar">Modo: força bruta</button>
+      <button id="modeBtn" type="button" title="Alternar entre força bruta e Quadtree (reinicia a distribuição em Aglomerado/Dois clusters)">Modo: força bruta</button>
+      <button id="resetBtn" type="button" title="Reiniciar as posições das partículas com a distribuição atual">Reiniciar simulação</button>
       <button id="stepBtn" type="button" title="Ativar inspeção passo a passo na próxima colisão (até 200 partículas)">Modo didático: desligado</button>
     </div>
 
@@ -44,6 +66,8 @@
     </label>
 
     <pre id="stats" aria-label="Estatísticas da simulação"></pre>
+
+    <canvas id="speedChart" width="280" height="148" aria-label="Gráfico comparando tempo por frame entre força bruta e Quadtree"></canvas>
   </aside>
 
   <!-- Scripts clássicos (não ES modules): assim a demo funciona abrindo o arquivo direto, sem servidor. -->

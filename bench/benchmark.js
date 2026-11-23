@@ -1,5 +1,5 @@
 // Benchmark de escala: compara força bruta e Quadtree para vários N e raios.
-// Uso:  node bench/benchmark.js [--csv] [--frames=50] [--sizes=100,1000,5000]
+// Uso:  node bench/benchmark.js [--csv] [--frames=50] [--sizes=100,1000,5000] [--distribution=uniform|cluster|clusters]
 // Mede o tempo por frame (mediana, em ms) e confere que os dois algoritmos
 // encontram exatamente os mesmos pares de partículas.
 
@@ -18,6 +18,8 @@ const framesArg = args.find((a) => a.startsWith('--frames='));
 const FRAMES = framesArg ? Number(framesArg.split('=')[1]) : 50;
 const sizesArg = args.find((a) => a.startsWith('--sizes='));
 const SIZES = sizesArg ? sizesArg.split('=')[1].split(',').map(Number) : [100, 200, 500, 1000, 2000, 5000, 10000];
+const distArg = args.find((a) => a.startsWith('--distribution='));
+const DISTRIBUTION = distArg ? distArg.split('=')[1] : 'uniform';
 
 function median(values) {
   const sorted = [...values].sort((a, b) => a - b);
@@ -31,7 +33,7 @@ function pairKeys(pairs) {
 
 function measure(count, radius) {
   const sim = new Simulation(WIDTH, HEIGHT);
-  sim.reset(count, radius, WIDTH, HEIGHT);
+  sim.reset(count, radius, WIDTH, HEIGHT, DISTRIBUTION);
 
   const brute = [];
   const buildTree = [];
@@ -104,5 +106,5 @@ if (csv) {
   console.log(`| ${header.join(' | ')} |`);
   console.log(`|${header.map(() => '---').join('|')}|`);
   for (const row of cells) console.log(`| ${row.join(' | ')} |`);
-  console.log(`\n${FRAMES} frames por cenário (mediana), área ${WIDTH}x${HEIGHT}, Node ${process.version}.`);
+  console.log(`\n${FRAMES} frames por cenário (mediana), distribuição ${DISTRIBUTION}, área ${WIDTH}x${HEIGHT}, Node ${process.version}.`);
 }

@@ -47,37 +47,69 @@ function smooth(average, sample) {
   return average === 0 ? sample : average * 0.9 + sample * 0.1;
 }
 
+const CLUSTER_FRACTION = 0.08;
+
+function spawnInBox(cx, cy, bw, bh, r, width, height) {
+  const minX = Math.max(r, cx - bw / 2);
+  const maxX = Math.min(width - r, cx + bw / 2);
+  const minY = Math.max(r, cy - bh / 2);
+  const maxY = Math.min(height - r, cy + bh / 2);
+  return {
+    x: minX + Math.random() * Math.max(0, maxX - minX),
+    y: minY + Math.random() * Math.max(0, maxY - minY),
+  };
+}
+
 class Simulation {
   constructor(width, height) {
     this.width = width;
     this.height = height;
     this.radius = 4;
+    this.distribution = 'uniform';
     this.particles = [];
     this.mode = 'brute'; // 'brute' | 'quadtree'
     this.tree = null; // Quadtree do último frame (usada pela grade e pela seleção)
     this.tests = 0; // testes de colisão do último frame
     this.detectMs = 0; // tempo médio (ms) para achar os pares colidindo
     this.buildMs = 0; // tempo médio (ms) para reconstruir a Quadtree
+    this.lastBuildMs = 0; // último frame (sem suavização), para medir a média
+    this.lastTotalMs = 0; // tempo bruto total do último frame (ms)
+    this.avgMs = 0; // média aritmética do tempo total por frame (ms)
+    this.frameCount = 0; // frames contados em avgMs
     this.selection = null;
     this.selectedCount = 0;
   }
 
-  // Recomeça do zero: posições e direções aleatórias dentro da área.
-  reset(count, radius, width, height) {
+  // Recomeça do zero: posições e direções aleatórias conforme a distribuição escolhida.
+  reset(count, radius, width, height, distribution = 'uniform') {
     this.width = width;
     this.height = height;
     this.radius = radius;
+    this.distribution = distribution;
     this.particles = [];
+    const bw = width * CLUSTER_FRACTION;
+    const bh = height * CLUSTER_FRACTION;
     for (let i = 0; i < count; i++) {
-      const x = radius + Math.random() * (width - 2 * radius);
-      const y = radius + Math.random() * (height - 2 * radius);
+      let pos;
+      if (distribution === 'cluster') {
+        pos = spawnInBox(width / 2, height / 2, bw, bh, radius, width, height);
+      } else if (distribution === 'clusters') {
+        const cx = i % 2 === 0 ? width * 0.25 : width * 0.75;
+        pos = spawnInBox(cx, height / 2, bw, bh, radius, width, height);
+      } else {
+        pos = spawnInBox(width / 2, height / 2, width, height, radius, width, height);
+      }
       const angle = Math.random() * 2 * Math.PI;
       const speed = 0.5 + Math.random() * 1.5; // entre 0.5 e 2 px por frame
-      this.particles.push(new Particle(i, x, y, Math.cos(angle) * speed, Math.sin(angle) * speed, radius));
+      this.particles.push(new Particle(i, pos.x, pos.y, Math.cos(angle) * speed, Math.sin(angle) * speed, radius));
     }
     this.tests = 0;
     this.detectMs = 0;
     this.buildMs = 0;
+    this.lastBuildMs = 0;
+    this.lastTotalMs = 0;
+    this.avgMs = 0;
+    this.frameCount = 0;
     this.selection = null;
     this.selectedCount = 0;
   }
@@ -102,7 +134,8 @@ class Simulation {
     const start = performance.now();
     this.tree = new Quadtree(new Rect(0, 0, this.width, this.height));
     for (const p of this.particles) this.tree.insert(p);
-    this.buildMs = smooth(this.buildMs, performance.now() - start);
+    this.lastBuildMs = performance.now() - start;
+    this.buildMs = smooth(this.buildMs, this.lastBuildMs);
   }
 
   // Detectar e resolver também ficam separados: assim o modo didático pode olhar
@@ -117,7 +150,12 @@ class Simulation {
     const result = this.mode === 'brute'
       ? findPairsBruteForce(this.particles)
       : findPairsQuadtree(this.particles, this.tree);
-    this.detectMs = smooth(this.detectMs, performance.now() - start);
+    const elapsed = performance.now() - start;
+    this.detectMs = smooth(this.detectMs, elapsed);
+    const frameTotal = elapsed + (this.mode === 'quadtree' ? this.lastBuildMs : 0);
+    this.lastTotalMs = frameTotal;
+    this.frameCount++;
+    this.avgMs += (frameTotal - this.avgMs) / this.frameCount;
     this.tests = result.tests;
     return result;
   }
