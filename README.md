@@ -43,6 +43,8 @@ node --test
 
 ### Controles
 
+- **Minimizar painel (`−` / `+` ou tecla `H`)**: recolhe ou expande os controles para liberar a área total do canvas.
+- **Benchmarks**: abre o painel interativo [`bench/benchmark.html`](./bench/benchmark.html) direto a partir do simulador.
 - **Partículas (`10–2000`)**: ajuste pelo *slider* (reinicia ao soltar) ou diretamente pelo campo numérico ao lado (`Enter` ou sair do campo aplica o valor entre `10` e `2000` e reinicia).
 - **Raio (`2, 4, 8, 16, 32 px`)**: altera o tamanho das partículas e reinicia a simulação.
 - **Distribuição (`Uniforme`, `Aglomerado`, `Dois clusters`)**: define a posição inicial das partículas para comparar o caso médio (`Uniforme`) com cenários de degradação por alta densidade local (`Aglomerado` no centro ou `Dois clusters` separados).
@@ -113,7 +115,12 @@ node bench/benchmark.js --csv               # saída CSV, para gráficos
 node bench/benchmark.js --sizes=500,2000    # só alguns tamanhos
 node bench/benchmark.js --frames=100        # mais frames por cenário (mais estável)
 node bench/benchmark.js --distribution=cluster # reproduz o pior caso (aglomeração)
+
+# Abrir painel HTML interativo com os resultados gravados (e benchmark ao vivo no navegador):
+start "bench/benchmark.html"
 ```
+
+Os resultados gravados nas 3 distribuições (`uniform`, `cluster`, `clusters`) ficam salvos em [`bench/results.json`](./bench/results.json) e renderizados no painel offline [`bench/benchmark.html`](./bench/benchmark.html).
 
 Para cada cenário, mede a **mediana** do tempo por frame (em ms) da força bruta, da construção da árvore e da busca na Quadtree. O ganho é `bruta / (árvore + busca)`. A cada frame o script também confere que os dois algoritmos encontram exatamente os mesmos pares e falha com `AssertionError` se divergirem. Os tempos variam conforme a máquina; o que importa é a tendência com o crescimento de `N`.
 
@@ -132,7 +139,9 @@ quadtree_ttec/
 │   ├── renderer.js                      # Renderização no Canvas 2D
 │   └── main.js                          # Controles de UI, loop e máquina de estados didática
 ├── bench/
-│   └── benchmark.js                     # Benchmark de escala (força bruta x Quadtree)
+│   ├── benchmark.js                     # Benchmark de escala (força bruta x Quadtree)
+│   ├── benchmark.html                   # Painel HTML interativo offline (cenas, SVG e execução ao vivo)
+│   └── results.json                     # Medições gravadas nas 3 distribuições (Node v24.22.1)
 ├── tests/
 │   ├── particle.test.js                 # Testes unitários de física e colisão
 │   ├── quadtree.test.js                 # Testes unitários de subdivisão e range query
