@@ -286,3 +286,48 @@ test('buildTrace acumula nós visitados e o total de passos = partículas + nós
   assert.equal(last.visits, quad.filter((s) => s.type === 'visit').length);
   assert.equal(quad.length, particles.length + last.visits + last.tests);
 });
+
+test('reset com distribuição cluster concentra partículas no centro e respeita bordas', () => {
+  const sim = new Simulation(800, 600);
+  sim.reset(200, 4, 800, 600, 'cluster');
+  assert.equal(sim.distribution, 'cluster');
+  for (const p of sim.particles) {
+    assert.ok(p.x >= 400 - 32 && p.x <= 400 + 32, `x fora do cluster: ${p.x}`);
+    assert.ok(p.y >= 300 - 24 && p.y <= 300 + 24, `y fora do cluster: ${p.y}`);
+    assert.ok(p.x >= p.r && p.x <= 800 - p.r);
+    assert.ok(p.y >= p.r && p.y <= 600 - p.r);
+  }
+});
+
+test('reset com distribuição clusters divide partículas em dois aglomerados', () => {
+  const sim = new Simulation(800, 600);
+  sim.reset(200, 4, 800, 600, 'clusters');
+  assert.equal(sim.distribution, 'clusters');
+  const left = sim.particles.filter((p) => p.x < 400);
+  const right = sim.particles.filter((p) => p.x > 400);
+  assert.equal(left.length, 100);
+  assert.equal(right.length, 100);
+  for (const p of left) assert.ok(p.x >= 200 - 32 && p.x <= 200 + 32);
+  for (const p of right) assert.ok(p.x >= 600 - 32 && p.x <= 600 + 32);
+});
+
+test('findPairsQuadtree concorda com força bruta em cluster e faz muito mais testes que no uniforme', () => {
+  const makeAndDetect = (distribution) => {
+    const sim = new Simulation(800, 600);
+    sim.reset(500, 4, 800, 600, distribution);
+    const tree = new Quadtree(new Rect(0, 0, 800, 600));
+    for (const p of sim.particles) tree.insert(p);
+    return {
+      brute: findPairsBruteForce(sim.particles),
+      quad: findPairsQuadtree(sim.particles, tree),
+    };
+  };
+
+  const uniform = makeAndDetect('uniform');
+  const cluster = makeAndDetect('cluster');
+  assert.deepEqual(
+    cluster.quad.pairs.map(pairKey).sort(),
+    cluster.brute.pairs.map(pairKey).sort(),
+  );
+  assert.ok(cluster.quad.tests > uniform.quad.tests * 5, `${cluster.quad.tests} vs ${uniform.quad.tests}`);
+});

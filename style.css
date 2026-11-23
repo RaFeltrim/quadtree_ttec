@@ -122,7 +122,7 @@ canvas {
   cursor: pointer;
 }
 
-#radius,
+#panel select,
 #panel button {
   appearance: none;
   background: var(--control-bg);
@@ -142,7 +142,7 @@ canvas {
   text-align: center;
 }
 
-#radius option {
+#panel select option {
   background: #181c24;
   color: var(--text-primary);
 }
@@ -152,7 +152,7 @@ canvas {
   text-align: left;
 }
 
-#radius:hover,
+#panel select:hover,
 #panel button:hover {
   background: var(--control-bg-hover);
   border-color: rgba(255, 255, 255, 0.3);
@@ -207,7 +207,7 @@ canvas {
     width: min(280px, calc(100vw - 16px));
   }
 
-  #radius,
+  #panel select,
   #panel button,
   .field-check {
     min-height: 44px;
@@ -220,7 +220,7 @@ canvas {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  #radius,
+  #panel select,
   #panel button {
     transition: none;
   }

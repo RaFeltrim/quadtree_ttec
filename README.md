@@ -2,7 +2,7 @@
 
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES6%2B-F7DF1E?style=flat-square&logo=javascript&logoColor=000000)
 ![HTML5 Canvas](https://img.shields.io/badge/Canvas-2D%20API-E34F26?style=flat-square&logo=html5&logoColor=FFFFFF)
-![Node Test](https://img.shields.io/badge/node%20--test-32%2F32%20passando-2EA44F?style=flat-square&logo=nodedotjs&logoColor=FFFFFF)
+![Node Test](https://img.shields.io/badge/node%20--test-36%2F36%20passando-2EA44F?style=flat-square&logo=nodedotjs&logoColor=FFFFFF)
 ![Dependencies](https://img.shields.io/badge/Depend%C3%AAncias-Zero-4C1?style=flat-square)
 
 Simulação interativa que compara a detecção de colisão entre partículas por **força bruta** ($O(N^2)$) e por uma **Quadtree** ($O(N \log N)$) implementada do zero em JavaScript puro, sem servidor, sem *bundler* e sem dependências externas.
@@ -45,6 +45,7 @@ node --test
 
 - **Partículas (`10–2000`)**: ajuste pelo *slider* (reinicia ao soltar) ou diretamente pelo campo numérico ao lado (`Enter` ou sair do campo aplica o valor entre `10` e `2000` e reinicia).
 - **Raio (`2, 4, 8, 16, 32 px`)**: altera o tamanho das partículas e reinicia a simulação.
+- **Distribuição (`Uniforme`, `Aglomerado`, `Dois clusters`)**: define a posição inicial das partículas para comparar o caso médio (`Uniforme`) com cenários de degradação por alta densidade local (`Aglomerado` no centro ou `Dois clusters` separados).
 - **Modo (`Força bruta` / `Quadtree`)**: alterna o algoritmo de detecção sem reiniciar as posições.
 - **Mostrar grade**: desenha as subdivisões recursivas da Quadtree no canvas.
 - **Arrastar o mouse**: seleciona uma região retangular e destaca as partículas encontradas pela *range query*. Um clique simples limpa a seleção.
@@ -94,7 +95,7 @@ Execute a suíte unitária nativa com Node.js:
 node --test
 ```
 
-Os **32 testes** em [`tests/`](./tests) cobrem exclusivamente a lógica pura (`src/particle.js`, `src/quadtree.js`, `src/simulation.js`), sem dependências externas nem acoplamento ao DOM.
+Os **36 testes** em [`tests/`](./tests) cobrem exclusivamente a lógica pura (`src/particle.js`, `src/quadtree.js`, `src/simulation.js`), sem dependências externas nem acoplamento ao DOM.
 
 ---
 
@@ -107,6 +108,7 @@ node bench/benchmark.js                     # tabela em Markdown (~40 s)
 node bench/benchmark.js --csv               # saída CSV, para gráficos
 node bench/benchmark.js --sizes=500,2000    # só alguns tamanhos
 node bench/benchmark.js --frames=100        # mais frames por cenário (mais estável)
+node bench/benchmark.js --distribution=cluster # reproduz o pior caso (aglomeração)
 ```
 
 Para cada cenário, mede a **mediana** do tempo por frame (em ms) da força bruta, da construção da árvore e da busca na Quadtree. O ganho é `bruta / (árvore + busca)`. A cada frame o script também confere que os dois algoritmos encontram exatamente os mesmos pares e falha com `AssertionError` se divergirem. Os tempos variam conforme a máquina; o que importa é a tendência com o crescimento de `N`.

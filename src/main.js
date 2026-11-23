@@ -5,6 +5,7 @@ const ctx = canvas.getContext('2d');
 const countInput = document.getElementById('count');
 const countValue = document.getElementById('countValue');
 const radiusSelect = document.getElementById('radius');
+const distributionSelect = document.getElementById('distribution');
 const modeBtn = document.getElementById('modeBtn');
 const stepBtn = document.getElementById('stepBtn');
 const notice = document.getElementById('notice');
@@ -21,7 +22,7 @@ function resizeCanvas() {
 // Mudar quantidade, raio ou tamanho da janela sempre recomeça a simulação.
 // Com o modo didático ligado, ele volta a aguardar uma colisão (se couber no limite).
 function restart() {
-  sim.reset(Number(countInput.value), Number(radiusSelect.value), canvas.width, canvas.height);
+  sim.reset(Number(countInput.value), Number(radiusSelect.value), canvas.width, canvas.height, distributionSelect.value);
   trace = null;
   if (sim.particles.length <= MAX_TRACE_PARTICLES) {
     notice.textContent = '';
@@ -38,6 +39,7 @@ window.addEventListener('resize', () => {
   restart();
 });
 radiusSelect.addEventListener('change', restart);
+distributionSelect.addEventListener('change', restart);
 
 // O slider mostra o valor enquanto arrasta e só recomeça ao soltar.
 countInput.addEventListener('input', () => {
