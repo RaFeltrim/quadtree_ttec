@@ -2,7 +2,7 @@
 
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES6%2B-F7DF1E?style=flat-square&logo=javascript&logoColor=000000)
 ![HTML5 Canvas](https://img.shields.io/badge/Canvas-2D%20API-E34F26?style=flat-square&logo=html5&logoColor=FFFFFF)
-![Node Test](https://img.shields.io/badge/node%20--test-36%2F36%20passando-2EA44F?style=flat-square&logo=nodedotjs&logoColor=FFFFFF)
+![Node Test](https://img.shields.io/badge/node%20--test-37%2F37%20passando-2EA44F?style=flat-square&logo=nodedotjs&logoColor=FFFFFF)
 ![Dependencies](https://img.shields.io/badge/Depend%C3%AAncias-Zero-4C1?style=flat-square)
 
 Simulação interativa que compara a detecção de colisão entre partículas por **força bruta** ($O(N^2)$) e por uma **Quadtree** ($O(N \log N)$) implementada do zero em JavaScript puro, sem servidor, sem *bundler* e sem dependências externas.
@@ -46,7 +46,8 @@ node --test
 - **Partículas (`10–2000`)**: ajuste pelo *slider* (reinicia ao soltar) ou diretamente pelo campo numérico ao lado (`Enter` ou sair do campo aplica o valor entre `10` e `2000` e reinicia).
 - **Raio (`2, 4, 8, 16, 32 px`)**: altera o tamanho das partículas e reinicia a simulação.
 - **Distribuição (`Uniforme`, `Aglomerado`, `Dois clusters`)**: define a posição inicial das partículas para comparar o caso médio (`Uniforme`) com cenários de degradação por alta densidade local (`Aglomerado` no centro ou `Dois clusters` separados).
-- **Modo (`Força bruta` / `Quadtree`)**: alterna o algoritmo de detecção sem reiniciar as posições.
+- **Modo (`Força bruta` / `Quadtree`)**: alterna o algoritmo de detecção (mantém as posições em `Uniforme` e reinicia automaticamente a distribuição em `Aglomerado` e `Dois clusters`).
+- **Reiniciar simulação**: reinicia as posições das partículas com a distribuição selecionada.
 - **Mostrar grade**: desenha as subdivisões recursivas da Quadtree no canvas.
 - **Arrastar o mouse**: seleciona uma região retangular e destaca as partículas encontradas pela *range query*. Um clique simples limpa a seleção.
 
@@ -54,7 +55,8 @@ O painel superior exibe FPS, número de partículas, testes de colisão por fram
 
 - **Testes**: quantas comparações entre pares foram feitas no frame.
 - **Detecção**: tempo médio (ms) para encontrar os pares que colidem.
-- **Árvore** *(só no modo Quadtree)*: tempo médio (ms) para reconstruir a Quadtree a cada frame. O custo total da Quadtree é **Detecção + Árvore**.
+- **Árvore** *(só no modo Quadtree)*: tempo médio (ms) para reconstruir a Quadtree a cada frame.
+- **Total**: custo total por frame (em força bruta é igual a **Detecção**; em Quadtree é **Detecção + Árvore**), seguido da **média** acumulada por frame desde o último reinício ou troca de modo.
 
 O FPS é limitado pela taxa de atualização do monitor e por isso pode não diferenciar os algoritmos; o tempo em ms mostra a diferença real. Com `2000` partículas e raio `4`, a força bruta leva cerca de `4 ms` por frame e a Quadtree cerca de `1,5 ms` (detecção + árvore), com ordem de grandeza menor de testes (`~2 milhões` contra `~150`). O ganho cresce com o número de partículas.
 
@@ -95,7 +97,7 @@ Execute a suíte unitária nativa com Node.js:
 node --test
 ```
 
-Os **36 testes** em [`tests/`](./tests) cobrem exclusivamente a lógica pura (`src/particle.js`, `src/quadtree.js`, `src/simulation.js`), sem dependências externas nem acoplamento ao DOM.
+Os **37 testes** em [`tests/`](./tests) cobrem exclusivamente a lógica pura (`src/particle.js`, `src/quadtree.js`, `src/simulation.js`), sem dependências externas nem acoplamento ao DOM.
 
 ---
 

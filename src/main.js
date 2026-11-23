@@ -7,6 +7,7 @@ const countValue = document.getElementById('countValue');
 const radiusSelect = document.getElementById('radius');
 const distributionSelect = document.getElementById('distribution');
 const modeBtn = document.getElementById('modeBtn');
+const resetBtn = document.getElementById('resetBtn');
 const stepBtn = document.getElementById('stepBtn');
 const notice = document.getElementById('notice');
 const showGridInput = document.getElementById('showGrid');
@@ -40,6 +41,7 @@ window.addEventListener('resize', () => {
 });
 radiusSelect.addEventListener('change', restart);
 distributionSelect.addEventListener('change', restart);
+resetBtn.addEventListener('click', restart);
 
 // O slider mostra o valor enquanto arrasta e só recomeça ao soltar.
 countInput.addEventListener('input', () => {
@@ -68,11 +70,13 @@ countValue.addEventListener('keydown', (e) => {
   }
 });
 
-// Trocar o modo não recomeça: as mesmas partículas seguem, só muda a detecção.
+// Em uniforme, mantém as posições; em Aglomerado / Dois clusters, reinicia ao trocar de modo.
 modeBtn.addEventListener('click', () => {
   sim.mode = sim.mode === 'brute' ? 'quadtree' : 'brute';
+  sim.avgMs = sim.frameCount = 0;
   modeBtn.textContent = sim.mode === 'brute' ? 'Modo: força bruta' : 'Modo: Quadtree';
   if (didactic === 'presenting') rebuildTrace(); // mesmo frame e mesmo par, outro algoritmo
+  else if (sim.distribution !== 'uniform') restart();
 });
 
 // Modo didático: a animação roda até a detecção encontrar uma colisão. Aí pausa antes
@@ -248,12 +252,14 @@ let lastStatsUpdate = 0;
 function updateStats(now) {
   if (now - lastStatsUpdate < 250) return;
   lastStatsUpdate = now;
+  const totalMs = sim.detectMs + (sim.mode === 'quadtree' ? sim.buildMs : 0);
   stats.textContent =
     `FPS:        ${fps.toFixed(0)}\n` +
     `Partículas: ${sim.particles.length}\n` +
     `Testes:     ${sim.tests}\n` +
     `Detecção:   ${sim.detectMs.toFixed(3)} ms\n` +
     (sim.mode === 'quadtree' ? `Árvore:     ${sim.buildMs.toFixed(3)} ms\n` : '') +
+    `Total:      ${totalMs.toFixed(3)} ms (média ${sim.avgMs.toFixed(3)})\n` +
     `Modo:       ${sim.mode === 'brute' ? 'força bruta' : 'Quadtree'}` +
     (sim.selection ? `\nEncontradas: ${sim.selectedCount}` : '') +
     (didactic === 'waiting' ? '\nModo didático: aguardando colisão' : '') +

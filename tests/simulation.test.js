@@ -276,6 +276,33 @@ test('step registra o tempo de detecção e de construção da árvore', () => {
   assert.ok(sim.buildMs > 0);
 });
 
+test('avgMs registra a média acumulada por frame em cada modo e zera no reset', () => {
+  const sim = new Simulation(800, 600);
+  sim.reset(200, 4, 800, 600);
+  assert.equal(sim.avgMs, 0);
+  assert.equal(sim.frameCount, 0);
+
+  // Primeiro frame após reset: média móvel == amostra bruta, permitindo conferir a fórmula exata.
+  sim.mode = 'brute';
+  sim.step();
+  assert.equal(sim.avgMs, sim.detectMs);
+  assert.equal(sim.frameCount, 1);
+
+  sim.reset(200, 4, 800, 600);
+  sim.mode = 'quadtree';
+  sim.step();
+  assert.equal(sim.avgMs, sim.detectMs + sim.buildMs);
+  assert.equal(sim.frameCount, 1);
+
+  sim.step();
+  assert.equal(sim.frameCount, 2);
+  assert.ok(sim.avgMs > 0);
+
+  sim.reset(200, 4, 800, 600);
+  assert.equal(sim.avgMs, 0);
+  assert.equal(sim.frameCount, 0);
+});
+
 test('buildTrace acumula nós visitados e o total de passos = partículas + nós + testes', () => {
   const { particles, tree } = randomScene(100, 8, 400, 300);
   const brute = buildTrace(particles, tree, 'brute');

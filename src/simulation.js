@@ -72,6 +72,9 @@ class Simulation {
     this.tests = 0; // testes de colisão do último frame
     this.detectMs = 0; // tempo médio (ms) para achar os pares colidindo
     this.buildMs = 0; // tempo médio (ms) para reconstruir a Quadtree
+    this.lastBuildMs = 0; // último frame (sem suavização), para medir a média
+    this.avgMs = 0; // média aritmética do tempo total por frame (ms)
+    this.frameCount = 0; // frames contados em avgMs
     this.selection = null;
     this.selectedCount = 0;
   }
@@ -102,6 +105,9 @@ class Simulation {
     this.tests = 0;
     this.detectMs = 0;
     this.buildMs = 0;
+    this.lastBuildMs = 0;
+    this.avgMs = 0;
+    this.frameCount = 0;
     this.selection = null;
     this.selectedCount = 0;
   }
@@ -126,7 +132,8 @@ class Simulation {
     const start = performance.now();
     this.tree = new Quadtree(new Rect(0, 0, this.width, this.height));
     for (const p of this.particles) this.tree.insert(p);
-    this.buildMs = smooth(this.buildMs, performance.now() - start);
+    this.lastBuildMs = performance.now() - start;
+    this.buildMs = smooth(this.buildMs, this.lastBuildMs);
   }
 
   // Detectar e resolver também ficam separados: assim o modo didático pode olhar
@@ -141,7 +148,11 @@ class Simulation {
     const result = this.mode === 'brute'
       ? findPairsBruteForce(this.particles)
       : findPairsQuadtree(this.particles, this.tree);
-    this.detectMs = smooth(this.detectMs, performance.now() - start);
+    const elapsed = performance.now() - start;
+    this.detectMs = smooth(this.detectMs, elapsed);
+    const frameTotal = elapsed + (this.mode === 'quadtree' ? this.lastBuildMs : 0);
+    this.frameCount++;
+    this.avgMs += (frameTotal - this.avgMs) / this.frameCount;
     this.tests = result.tests;
     return result;
   }
